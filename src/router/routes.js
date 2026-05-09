@@ -12,7 +12,6 @@ const routes = [
         path: '',
         name: 'login',
         component: () => import('pages/LoginPage.vue'),
-        // Login geralmente é público, se não for, mude para false
         meta: { public: true }
       }
     ]
@@ -20,22 +19,16 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    meta: { public: false }, // Protege todas as rotas filhas por padrão
+    meta: { public: false },
     children: [
       { path: '', component: () => import('pages/HomePage.vue') },
       { path: 'dashboard', component: () => import('pages/DashboardPage.vue') },
-      { path: 'fonte-publica', component: () => import('pages/FontePublica.vue') },
-      { path: 'verbas-por-municipio', component: () => import('../financiamento/VerbasPage.vue') },
-      { path: 'repasses-auxilios-pnae', component: () => import('../financiamento/RepassesPNAE.vue') },
-      { path: 'ods2-fome-zero', component: () => import('../ods/Ods2.vue') },
-      { path: 'ods3-saude-bem-estar', component: () => import('../ods/Ods3.vue') },
-      { path: 'ods4-educacao-qualidade', component: () => import('../ods/Ods4.vue') },
-      { path: 'relatorios', component: () => import('../portal/Relatorios.vue') },
-      { path: 'dados', component: () => import('pages/DadosPage.vue') }
+      { path: 'novo', component: () => import('../chamados/NovoChamado.vue') },
+      { path: 'chamados', component: () => import('../chamados/Chamados.vue') },
+       { path: 'excluidos', component: () => import('../chamados/Excluidos.vue') },
     ]
   },
 
-  // Sempre deixe a rota de erro por último
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorPage.vue'),

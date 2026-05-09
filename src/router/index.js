@@ -39,8 +39,8 @@ export default defineRouter(function () {
     // 2. Se a rota NÃO é pública e o captcha NÃO está ok -> Vai para o Captcha
     if (!isPublic && !isCaptchaOk()) {
       // Evita redirecionar se já estiver indo para o captcha (prevenção de loop)
-      if (to.path !== '/captcha') {
-        return next('/captcha')
+      if (to.path !== '/login') {
+        return next('/login')
       }
     }
 

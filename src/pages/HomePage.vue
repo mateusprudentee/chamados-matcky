@@ -199,12 +199,8 @@ export default {
 
      quickActions: [
   { title: 'Abrir chamado', icon: 'bug_report', to: '/dashboard' },
-
   { title: 'Listas', icon: 'list', to: '/fonte-publica' },
   { title: 'Excluídos', icon: 'delete', to: '/dados' },
-  { title: 'Meu projeto', icon: 'person', to: '/dependencia-agricultura' },
-  { title: 'Dashboards', icon: 'dashboard', to: '/cumprimento-pnae' },
-  { title: 'Status dos serviços', icon: 'gavel', to: '/ods2-fome-zero' },
 ]
     }
   },

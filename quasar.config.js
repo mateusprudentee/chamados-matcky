@@ -1,5 +1,4 @@
 import { defineConfig } from '#q-app/wrappers'
-import ptBR from 'quasar/lang/pt-BR'
 export default defineConfig((/* ctx */) => {
   return {
     boot: [],
@@ -40,7 +39,7 @@ export default defineConfig((/* ctx */) => {
     },
 
     framework: {
-  lang: ptBR,
+  lang: 'pt-br',
   dark: false,
   config: {},
   iconSet: 'material-icons',

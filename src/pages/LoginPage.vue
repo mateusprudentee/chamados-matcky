@@ -1,501 +1,827 @@
 <template>
+  <div class="login-page">
     <div class="login-container">
-      <!-- Left Side - Brand Area -->
+      <!-- Header -->
+      <div class="login-header">
+        <div class="logo-icon">
 
+        </div>
+        <p class="login-title">Olá!</p>
+      </div>
 
-      <!-- Right Side - Login Form -->
-      <div class="login-section">
-        <div class="login-wrapper">
-          <div class="login-header">
-            <h2 class="login-title">Bem-vindo de volta</h2>
-            <p class="login-subtitle">Escolha uma das opções abaixo para acessar sua conta</p>
+      <!-- Form -->
+      <form @submit.prevent="handleLogin" class="login-form">
+        <div class="input-group">
+          <label class="input-label">Email</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M3 4H17C18.1046 4 19 4.89543 19 6V14C19 15.1046 18.1046 16 17 16H3C1.89543 16 1 15.1046 1 14V6C1 4.89543 1.89543 4 3 4Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M1 6L10 11L19 6" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <input
+              v-model="form.username"
+              type="email"
+              placeholder="seu@email.com"
+              class="input-field"
+              autocomplete="email"
+            />
           </div>
+        </div>
 
-          <div class="login-options">
-            <!-- Google Login -->
-            <button class="login-btn google-btn" @click="handleGoogleLogin">
-              <div class="btn-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-              </div>
-              <span>Continuar com Google</span>
-            </button>
-
-            <!-- Microsoft Login -->
-            <button class="login-btn microsoft-btn" @click="handleMicrosoftLogin">
-              <div class="btn-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path fill="#F25022" d="M2 2h9.5v9.5H2z"/>
-                  <path fill="#7FBA00" d="M12.5 2H22v9.5H12.5z"/>
-                  <path fill="#00A4EF" d="M2 12.5h9.5V22H2z"/>
-                  <path fill="#FFB900" d="M12.5 12.5H22V22H12.5z"/>
-                </svg>
-              </div>
-              <span>Continuar com Microsoft</span>
-            </button>
-
-            <!-- Email Login -->
-            <button class="login-btn email-btn" @click="handleEmailLogin">
-              <div class="btn-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="#666666"/>
-                </svg>
-              </div>
-              <span>Continuar com E-mail</span>
-            </button>
-
-            <!-- Phone Login -->
-            <button class="login-btn phone-btn" @click="handlePhoneLogin">
-              <div class="btn-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 15.5C18.8 15.5 17.5 15.3 16.4 14.9C16.1 14.8 15.8 14.9 15.6 15.1L13.2 17.5C10.4 16 8 13.6 6.5 10.8L8.9 8.4C9.1 8.2 9.2 7.9 9.1 7.6C8.7 6.5 8.5 5.2 8.5 4C8.5 3.5 8 3 7.5 3H4C3.5 3 3 3.5 3 4C3 13.4 10.6 21 20 21C20.5 21 21 20.5 21 20V16.5C21 16 20.5 15.5 20 15.5Z" fill="#666666"/>
-                </svg>
-              </div>
-              <span>Continuar com Celular</span>
+        <div class="input-group">
+          <label class="input-label">Senha</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="3" y="8" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 8V5C6 2.79086 7.79086 1 10 1C12.2091 1 14 2.79086 14 5V8" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="10" cy="13" r="1" fill="currentColor"/>
+            </svg>
+            <input
+              v-model="form.password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              class="input-field"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              @click="showPassword = !showPassword"
+            >
+              <svg v-if="!showPassword" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 4C4 4 1 10 1 10C1 10 4 16 10 16C16 16 19 10 19 10C19 10 16 4 10 4Z" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M1 1L19 19M10 4C4 4 1 10 1 10C1 10 4 16 10 16C13 16 15.5 14 17 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
             </button>
           </div>
+        </div>
+<!-- Forgot Password -->
+<div class="forgot-password">
+  <button
+    type="button"
+    class="forgot-password-btn"
+    @click="goToForgotPassword"
+  >
+    Esqueceu sua senha?
+  </button>
+</div>
+        <!-- Terms text -->
+        <p class="terms-text">
+          Ao entrar você concorda com nossos
+          <a href="#" class="terms-link">Termos de uso</a> e
+          <a href="#" class="terms-link">Política de Privacidade</a>. Além disso, está ciente de que este sistema é de propriedade privada e que as informações fornecidas serão usadas apenas para fins de autenticação e autorização.
+        </p>
 
-          <div class="login-divider">
-            <span class="divider-line"></span>
-            <span class="divider-text">ou</span>
-            <span class="divider-line"></span>
-          </div>
 
-          <div class="register-prompt">
-            <p class="register-text">
-              Novo por aqui?
-              <a href="#" class="register-link" @click.prevent="handleRegister">Crie sua conta</a>
-            </p>
-          </div>
+        <!-- Message box -->
+        <div
+          v-if="message.text"
+          :class="['message-box', message.type]"
+        >
+          <svg v-if="message.type === 'error'" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 6V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="10" cy="14" r="0.5" fill="currentColor"/>
+          </svg>
+          <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M6 10L9 13L14 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>{{ message.text }}</span>
+          <span v-if="message.countdown" class="countdown">
+            Redirecionando em {{ message.countdown }}s...
+          </span>
+        </div>
 
-          <div class="help-links">
-            <a href="#" class="help-link" @click.prevent="handleForgotPassword">Esqueceu a senha?</a>
-            <span class="help-separator">•</span>
-            <a href="#" class="help-link" @click.prevent="handleHelp">Precisa de ajuda?</a>
-          </div>
+        <!-- Submit button -->
+        <button
+          type="submit"
+          class="submit-btn"
+          :disabled="loading"
+        >
+          <span v-if="!loading">Entrar</span>
+          <span v-else class="loading-spinner"></span>
+        </button>
+
+        <!-- Register link -->
+
+      </form>
+    </div>
+
+    <!-- Captcha Dialog -->
+    <div v-if="showCaptcha" class="captcha-overlay">
+      <div class="captcha-dialog">
+        <div class="captcha-header">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#1a1a1a"/>
+            <path d="M8 16L14 22L24 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2>Verificação de Segurança</h2>
+          <p>Digite o código de 6 dígitos te informado para confirmar seu acesso ao sistema de chamados.</p>
+        </div>
+
+        <div class="captcha-inputs">
+          <input
+            v-for="(digit, index) in captchaDigits"
+            :key="index"
+            v-model="captchaDigits[index]"
+            type="text"
+            maxlength="1"
+            class="captcha-digit"
+            :ref="el => digitRefs[index] = el"
+            @input="handleCaptchaInput(index)"
+            @keydown="handleCaptchaKeydown(index, $event)"
+            @paste="handleCaptchaPaste"
+            autocomplete="off"
+          />
+        </div>
+
+        <div v-if="captchaError" class="captcha-error">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 5V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="8" cy="11" r="0.5" fill="currentColor"/>
+          </svg>
+          Código inválido. Tente novamente.
+        </div>
+
+        <div class="captcha-actions">
+          <button class="captcha-btn secondary" @click="closeCaptcha">
+            Cancelar
+          </button>
+          <button
+            class="captcha-btn primary"
+            @click="verifyCaptcha"
+            :disabled="isCaptchaIncomplete"
+          >
+            Verificar
+          </button>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
-<script setup>
-import { useQuasar } from 'quasar'
+<script>
+import { ref, computed, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 
-const $q = useQuasar()
+export default {
+  setup() {
+    const router = useRouter()
 
-const handleGoogleLogin = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Redirecionando para login com Google...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement Google OAuth here
+    const form = ref({
+      username: '',
+      password: ''
+    })
+
+    const loading = ref(false)
+    const showPassword = ref(false)
+    const showCaptcha = ref(false)
+    const captchaDigits = ref(['', '', '', '', '', ''])
+    const captchaError = ref(false)
+    const digitRefs = ref([])
+
+    const CAPTCHA_CODE = '012698'
+
+    const message = ref({
+      text: '',
+      type: '',
+      countdown: 0
+    })
+
+    const isCaptchaIncomplete = computed(() => {
+      return captchaDigits.value.some(digit => digit === '')
+    })
+
+    const showMessage = (type, text, redirect = false) => {
+      message.value = { text, type, countdown: 0 }
+
+      if (redirect) {
+        message.value.countdown = 3
+        const timer = setInterval(() => {
+          message.value.countdown--
+          if (message.value.countdown <= 0) {
+            clearInterval(timer)
+            router.push('/')
+          }
+        }, 1000)
+      }
+    }
+
+    const validateForm = () => {
+      if (!form.value.username || !form.value.password) {
+        showMessage('error', 'Email e senha são obrigatórios')
+        return false
+      }
+      return true
+    }
+const goToForgotPassword = () => {
+  router.push('/recuperar-senha')
 }
+    const handleLogin = async () => {
+      if (!validateForm()) return
 
-const handleMicrosoftLogin = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Redirecionando para login com Microsoft...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement Microsoft OAuth here
-}
+      loading.value = true
+      try {
+        const response = await fetch('https://boom-matcky.onrender.com/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(form.value)
+        })
 
-const handleEmailLogin = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Redirecionando para login com E-mail...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement email login here
-}
+        const data = await response.json()
 
-const handlePhoneLogin = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Redirecionando para login com Celular...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement phone login here
-}
+        if (!response.ok) {
+          throw new Error(data.error || 'Erro no login')
+        }
 
-const handleRegister = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Redirecionando para página de cadastro...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement registration redirect
-}
+        localStorage.setItem('authToken', data.token)
+        localStorage.setItem('user', JSON.stringify(data.user))
 
-const handleForgotPassword = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Redirecionando para recuperação de senha...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement forgot password
-}
+        // Show captcha after successful login
+        showCaptcha.value = true
 
-const handleHelp = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Abrindo central de ajuda...',
-    position: 'top',
-    timeout: 2000
-  })
-  // Implement help center
+      } catch (error) {
+        showMessage('error', error.message || 'Falha no login')
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const handleCaptchaInput = (index) => {
+      captchaError.value = false
+
+      // Auto-focus next input
+      if (captchaDigits.value[index] && index < 5) {
+        nextTick(() => {
+          digitRefs.value[index + 1]?.focus()
+        })
+      }
+    }
+
+    const handleCaptchaKeydown = (index, event) => {
+      if (event.key === 'Backspace' && !captchaDigits.value[index] && index > 0) {
+        nextTick(() => {
+          digitRefs.value[index - 1]?.focus()
+        })
+      }
+    }
+
+    const handleCaptchaPaste = (event) => {
+      event.preventDefault()
+      const pastedData = event.clipboardData.getData('text')
+      const numbers = pastedData.replace(/\D/g, '').slice(0, 6)
+
+      if (numbers.length > 0) {
+        numbers.split('').forEach((num, index) => {
+          if (index < 6) {
+            captchaDigits.value[index] = num
+          }
+        })
+
+        const lastIndex = Math.min(numbers.length - 1, 5)
+        nextTick(() => {
+          digitRefs.value[lastIndex]?.focus()
+        })
+      }
+    }
+
+    const verifyCaptcha = () => {
+      const code = captchaDigits.value.join('')
+
+      if (code === CAPTCHA_CODE) {
+        // Success - set expiration
+        localStorage.setItem(
+          'captcha_expire',
+          String(Date.now() + 24 * 60 * 60 * 1000)
+        )
+
+        const redirect = router.currentRoute.value.query.redirect || '/'
+        router.push(redirect)
+      } else {
+        captchaError.value = true
+        captchaDigits.value = ['', '', '', '', '', '']
+        nextTick(() => {
+          digitRefs.value[0]?.focus()
+        })
+      }
+    }
+
+    const closeCaptcha = () => {
+      showCaptcha.value = false
+      captchaDigits.value = ['', '', '', '', '', '']
+      captchaError.value = false
+    }
+
+    const goToRegister = () => {
+      router.push('/register')
+    }
+
+    return {
+      form,
+      loading,
+      message,
+      showPassword,
+      showCaptcha,
+      captchaDigits,
+      captchaError,
+      digitRefs,
+      isCaptchaIncomplete,
+      handleLogin,
+      verifyCaptcha,
+      closeCaptcha,
+      goToRegister,
+      goToForgotPassword,
+      handleCaptchaInput,
+      handleCaptchaKeydown,
+      handleCaptchaPaste
+    }
+  }
 }
 </script>
 
 <style scoped>
-
-
-.login-container {
-  display: flex;
-  max-width: 500px;
-  width: 100%;
-  margin: 0 auto;
-  background: white;
-  border-radius: 32px;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.062);
-  min-height: 600px;
-}
-
-/* Brand Section - Left Side */
-.brand-section {
-  flex: 1;
-  background: linear-gradient(135deg, #e6e6e6 0%, #ffffff 100%);
-  padding: 48px;
+/* Reset & Base */
+.login-page {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+/* Forgot Password */
+.forgot-password {
+  display: flex;
+  margin-top: -8px;
+}
+
+.forgot-password-btn {
+  background: none;
+  border: none;
+  color: #6e6d6e;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px;
+}
+
+.forgot-password-btn:hover {
+  color: #000000;
+  text-decoration: none;
+}
+/* Container */
+.login-container {
+  width: 100%;
+  max-width: 440px;
+  background: white;
+  border-radius: 24px;
+  padding: 48px 40px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 20px 60px rgba(0, 0, 0, 0.04);
   position: relative;
   overflow: hidden;
 }
 
-.brand-section::before {
+.login-container::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="rgba(255,255,255,0.05)" d="M100 0L130 30L100 60L70 30L100 0Z"/><path fill="rgba(255,255,255,0.05)" d="M100 140L130 170L100 200L70 170L100 140Z"/><path fill="rgba(255,255,255,0.05)" d="M0 100L30 70L60 100L30 130L0 100Z"/><path fill="rgba(255,255,255,0.05)" d="M140 100L170 70L200 100L170 130L140 100Z"/></svg>') repeat;
-  opacity: 0.1;
-}
-
-.brand-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  color: white;
-}
-
-.logo-wrapper {
-  margin-bottom: 24px;
-}
-
-.brand-icon {
-  color: #48bb78;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-.brand-title {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
-}
-
-.brand-subtitle {
-  font-size: 18px;
-  font-weight: 500;
-  opacity: 0.9;
-  margin: 0 0 24px 0;
-}
-
-.brand-divider {
-  width: 60px;
   height: 3px;
-  background: #48bb78;
-  margin: 0 auto 24px auto;
-  border-radius: 2px;
+  background: linear-gradient(90deg, #1100ff, #2913a7, #0051ff);
 }
 
-.brand-description {
-  font-size: 14px;
-  line-height: 1.6;
-  opacity: 0.8;
-  margin: 0;
-  max-width: 280px;
-}
-.sidebar-logo {
-  padding: 24px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-}
-/* Logo no modo mini - reduz tamanho */
-.sidebar-logo-mini {
-  padding: 16px 10px;
-}
-.logo-area {
-  background-image: url("https://i.imgur.com/MzEVU64.png");
-  background-size: cover;
-  background-position: center;
-  height: 60px;
-  width: 200px;
-  border-right: 1px solid rgb(235, 235, 235);
-}
-
-
-.logo-text {
-  font-size: 35px;
-  font-weight: normal;
-  background: linear-gradient(135deg, #363636 0%, #0130ff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  cursor: pointer;
-  line-height: 1.3;
-  max-width: 10px;
-}
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-/* Login Section - Right Side */
-.login-section {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-  background: white;
-}
-
-.login-wrapper {
-  max-width: 380px;
-  width: 100%;
-}
-
+/* Header */
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
+}
+
+.logo-icon {
+  display: inline-flex;
+  margin-bottom: 24px;
+  background-image: url("https://i.imgur.com/THfDr9W.png");
+  background-size: cover;
+  background-position: center;
+  height: 70px;
+  width: 90px;
 }
 
 .login-title {
   font-size: 28px;
   font-weight: 700;
-  color: #1a202c;
+  color: #1a1a1a;
   margin: 0 0 8px 0;
   letter-spacing: -0.5px;
 }
 
 .login-subtitle {
-  font-size: 13px;
-  color: #718096;
-  margin-top: -10px;
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+  font-weight: 400;
   line-height: 1.5;
+  margin-top: -25px;
 }
 
-.login-options {
+/* Form */
+.login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 20px;
 }
 
-.login-btn {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
+/* Input Groups */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  color: #999;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.input-field {
+  width: 100%;
+  padding: 14px 16px 14px 48px;
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1a1a1a;
+  background: white;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.input-field::placeholder {
+  color: #bbb;
+}
+
+.input-field:focus {
+  border-color: #1a1a1a;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.input-field:focus ~ .input-icon,
+.input-wrapper:focus-within .input-icon {
+  color: #1a1a1a;
+}
+
+/* Toggle Password */
+.toggle-password {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #999;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+  color: #1a1a1a;
+}
+
+/* Terms */
+.terms-text {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
+}
+
+.terms-link {
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.terms-link:hover {
+  color: #666;
+}
+
+/* Message Box */
+.message-box {
+  display: flex;
+  align-items: center;
   gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 500;
-  color: #4a5568;
+  animation: slideIn 0.3s ease;
+}
+
+.message-box.success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.message-box.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.countdown {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Buttons */
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(90deg, #1100ff, #2913a7, #0051ff);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  margin-top: 8px;
 }
 
-.login-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.login-btn:hover {
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(90deg, #1100ffc2, #2913a7, #0051ff);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #cbd5e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.login-btn:hover::before {
-  left: 100%;
-}
-
-.login-btn:active {
+.submit-btn:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.btn-icon {
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.register-btn {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  color: #666;
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.register-btn:hover {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: inline-block;
   width: 20px;
   height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Captcha Overlay */
+.captcha-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
 }
 
-.google-btn:hover {
-  border-color: #4285F4;
-  background: #f8f9ff;
+.captcha-dialog {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
 }
 
-.microsoft-btn:hover {
-  border-color: #00A4EF;
-  background: #f0f9ff;
-}
-
-.email-btn:hover {
-  border-color: #48bb78;
-  background: #f0fff4;
-}
-
-.phone-btn:hover {
-  border-color: #ed8936;
-  background: #fffaf0;
-}
-
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 24px 0;
-}
-
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background: #e2e8f0;
-}
-
-.divider-text {
-  font-size: 12px;
-  color: #a0aec0;
-  text-transform: uppercase;
-}
-
-.register-prompt {
+.captcha-header {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 }
 
-.register-text {
+.captcha-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 16px 0 8px 0;
+  letter-spacing: -0.3px;
+}
+
+.captcha-header p {
   font-size: 14px;
-  color: #718096;
+  color: #666;
   margin: 0;
+  line-height: 1.5;
 }
 
-.register-link {
-  color: #48bb78;
-  text-decoration: none;
-  font-weight: 600;
-  margin-left: 4px;
-  transition: color 0.2s ease;
-}
-
-.register-link:hover {
-  color: #38a169;
-  text-decoration: underline;
-}
-
-.help-links {
+.captcha-inputs {
   display: flex;
-  justify-content: center;
   gap: 12px;
-  font-size: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
 }
 
-.help-link {
-  color: #a0aec0;
-  text-decoration: none;
-  transition: color 0.2s ease;
+.captcha-digit {
+  width: 52px;
+  height: 64px;
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: #fafafa;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
 }
 
-.help-link:hover {
-  color: #48bb78;
+.captcha-digit:focus {
+  border-color: #1a1a1a;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.help-separator {
-  color: #e2e8f0;
+.captcha-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  justify-content: center;
+  animation: shake 0.5s ease;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .login-container {
-    flex-direction: column;
-    max-width: 480px;
-  }
+.captcha-actions {
+  display: flex;
+  gap: 12px;
+}
 
-  .brand-section {
-    padding: 32px;
-    min-height: 280px;
-  }
+.captcha-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-  .login-section {
-    padding: 32px;
-  }
+.captcha-btn.primary {
+  background: #1a1a1a;
+  color: white;
+}
 
-  .brand-title {
-    font-size: 24px;
-  }
+.captcha-btn.primary:hover:not(:disabled) {
+  background: #333;
+}
 
-  .brand-description {
-    font-size: 13px;
-  }
+.captcha-btn.primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
 
-  .login-title {
-    font-size: 24px;
+.captcha-btn.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.captcha-btn.secondary:hover {
+  background: #eee;
+  color: #333;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
 @media (max-width: 480px) {
-  .login-page {
-    padding: 16px;
+  .login-container {
+    padding: 32px 24px;
   }
 
-  .brand-section,
-  .login-section {
-    padding: 24px;
+  .captcha-dialog {
+    padding: 32px 24px;
   }
 
-  .login-wrapper {
-    max-width: 100%;
+  .captcha-digit {
+    width: 44px;
+    height: 56px;
+    font-size: 20px;
+  }
+
+  .captcha-inputs {
+    gap: 8px;
   }
 }
 </style>

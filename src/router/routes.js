@@ -4,6 +4,12 @@ const routes = [
   component: () => import('pages/CaptchaPage.vue'),
   meta: { public: true }
 },
+{
+  path: '/recuperar-senha',
+  component: () => import('pages/Forgot.vue'),
+  meta: { public: true }
+},
+
   {
     path: '/login',
     component: () => import('layouts/AuthLayout.vue'),
@@ -26,6 +32,7 @@ const routes = [
       { path: 'novo', component: () => import('../chamados/NovoChamado.vue') },
       { path: 'chamados', component: () => import('../chamados/Chamados.vue') },
        { path: 'excluidos', component: () => import('../chamados/Excluidos.vue') },
+
     ]
   },
 

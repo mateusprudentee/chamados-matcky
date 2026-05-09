@@ -107,29 +107,7 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // 5. Verificação de roles/permissões usando a constante ROLES
-  const requiredRoles = to.meta.requiredRole
-  if (requiredRoles) {
-    if (!authToken || !userData.role) {
-      return next({ path: '/login', query: { redirect: to.fullPath } })
-    }
 
-    // Converte para array se for string única
-    const rolesArray = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
-
-    // Obtém o nível hierárquico do usuário
-    const userRoleLevel = Object.values(ROLES).indexOf(userData.role?.toLowerCase())
-
-    // Verifica se o usuário tem permissão baseado na hierarquia
-    const hasPermission = rolesArray.some(role => {
-      const requiredRoleLevel = Object.values(ROLES).indexOf(role.toLowerCase())
-      return userRoleLevel !== -1 && userRoleLevel <= requiredRoleLevel
-    })
-
-    if (!hasPermission) {
-      return next('/404')
-    }
-  }
 
   // 6. Rotas para visitantes (não logados)
   if (to.matched.some(record => record.meta.requiresGuest)) {

@@ -3,11 +3,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import storeRoutes from './routes/storeRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-import forumRoutes from './routes/forumRoutes.js';
 import membersRoutes from './routes/membersRoutes.js';
-import punishmentsRoutes from './routes/punishmentsRoutes.js';
 import { initializePool } from './src/config/database.js';
 
 const app = express();
@@ -41,10 +38,7 @@ app.use((req, res, next) => {
 
 // Rotas
 app.use('', authRoutes);
-app.use('', forumRoutes);
 app.use('', membersRoutes);
-app.use('', punishmentsRoutes);
-app.use('/api/store', storeRoutes);
 
 // Criar servidor HTTP
 const server = http.createServer(app);

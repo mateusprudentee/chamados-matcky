@@ -1,6 +1,6 @@
 import express from 'express';
 import MembersController from '../controllers/membersController.js';
-import { authenticateToken, checkPermission, PERMISSIONS } from '../src/config/auth.js';
+import { authenticateToken, checkPermission, PERMISSIONS } from '../src/auth.js';
 
 const router = express.Router();
 

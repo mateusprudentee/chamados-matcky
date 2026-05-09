@@ -1,4 +1,4 @@
-import { db } from '../src/config/database.js'; // Agora compatível
+import { db } from '../src/database.js'; // Agora compatível
 import bcrypt from 'bcrypt';
 import { generateToken } from '../src/config/auth.js';
 

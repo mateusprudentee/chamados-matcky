@@ -1,5 +1,5 @@
-import { db } from '../src/config/database.js';
-import { hashPassword, comparePasswords, generateToken } from '../src/config/auth.js';
+import { db } from '../src/database.js';
+import { hashPassword, comparePasswords, generateToken } from '../src/auth.js';
 import validator from 'validator';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';

@@ -39,7 +39,7 @@ export default defineConfig((/* ctx */) => {
     },
 
     framework: {
-  lang: 'pt-br',
+  lang: 'pt-BR',
   dark: false,
   config: {},
   iconSet: 'material-icons',

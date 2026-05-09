@@ -3,9 +3,9 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import authRoutes from './routes/authRoutes.js';
-import membersRoutes from './routes/membersRoutes.js';
-import { initializePool } from './src/config/database.js';
+import authRoutes from '../routes/authRoutes.js';
+import membersRoutes from '../routes/membersRoutes.js';
+import { initializePool } from './database.js';
 
 const app = express();
 const port = process.env.PORT || 3001;

@@ -530,6 +530,25 @@ let closeTimeout = null
 let interval = null
 
 // ======================
+// KEEP API ONLINE
+// ======================
+let keepAliveInterval = null
+
+const keepRenderAlive = async () => {
+  try {
+    await fetch(
+      'https://chamados-backend-4efw.onrender.com/ping',
+      {
+        method: 'GET',
+        cache: 'no-cache'
+      }
+    )
+  } catch (err) {
+    console.log('KeepAlive erro:', err)
+  }
+}
+
+// ======================
 // MENUS / ROTAS
 // ======================
 const menuGroups = {
@@ -760,6 +779,15 @@ onMounted(() => {
   )
 
   updateActiveMenuByRoute()
+
+  // ======================
+  // KEEP API ONLINE
+  // ======================
+  keepRenderAlive()
+
+  keepAliveInterval = setInterval(() => {
+    keepRenderAlive()
+  }, 300000) // 5 minutos
 })
 
 onUnmounted(() => {
@@ -774,6 +802,10 @@ onUnmounted(() => {
 
   if (closeTimeout) {
     clearTimeout(closeTimeout)
+  }
+
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval)
   }
 })
 </script>

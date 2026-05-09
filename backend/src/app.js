@@ -13,6 +13,13 @@ const port = process.env.PORT || 3001;
 // Configuração do trust proxy (deve vir antes de outras middlewares)
 app.set('trust proxy', true); // ou 1 se quiser confiar apenas no primeiro proxy
 
+app.get('/ping', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'pong'
+  })
+})
+
 // Configurações básicas
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'

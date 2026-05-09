@@ -1,10 +1,6 @@
 const routes = [
   // Rotas públicas (não exigem captcha)
-  {
-    path: '/captcha',
-    component: () => import('pages/CaptchaPage.vue'),
-    meta: { public: true, pageTitle: 'Verificação de Segurança' }
-  },
+
   {
     path: '/recuperar-senha',
     component: () => import('pages/Forgot.vue'),
@@ -71,7 +67,7 @@ const routes = [
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorPage.vue'),
-    meta: { public: true, pageTitle: 'Página não encontrada' }
+    meta: { public: false, pageTitle: 'Página não encontrada' }
   }
 ]
 

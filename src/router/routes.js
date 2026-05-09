@@ -57,6 +57,11 @@ const routes = [
         component: () => import('../chamados/Excluidos.vue'),
         meta: { pageTitle: 'Chamados Excluídos' }
       },
+      {
+        path: 'perfil',
+        component: () => import('../perfil/Perfil.vue'),
+        meta: { pageTitle: 'Perfil' }
+      },
     ]
   },
 

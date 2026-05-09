@@ -16,15 +16,7 @@
                     Historico de chamados removidos do sistema
                   </div>
                 </div>
-                <div>
-                  <q-btn
-                    color="primary"
-                    icon="arrow_back"
-                    label="Voltar para Chamados"
-                    unelevated
-                    @click="$router.push('/chamados')"
-                  />
-                </div>
+
               </div>
             </div>
           </div>

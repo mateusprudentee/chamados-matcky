@@ -365,7 +365,91 @@
               </div>
             </div>
 
+<!-- CONTA (modo normal) -->
+            <div v-if="!miniState" class="menu-section">
+              <q-item
+                clickable
+                v-ripple
+                class="menu-expansion-header dashboard-color"
+                @click="toggleSubmenu('conta')"
+              >
+                <q-item-section avatar>
+                  <q-icon name="badge" />
+                </q-item-section>
+                <q-item-section>Minha conta</q-item-section>
+                <q-item-section side>
+                  <q-icon :name="activeMenu === 'conta' ? 'expand_less' : 'expand_more'" />
+                </q-item-section>
+              </q-item>
+              <div v-if="activeMenu === 'conta'" class="menu-items">
 
+        <q-item
+  clickable
+  v-ripple
+  class="menu-item"
+  :class="{ 'menu-item-active': isActiveRoute('/perfil') }"
+  @click="navigateTo('/perfil')"
+>
+  <q-item-section avatar>
+    <q-icon name="person" />
+  </q-item-section>
+
+  <q-item-section style="margin-left: -15px;">
+    Perfil
+  </q-item-section>
+</q-item>
+
+              </div>
+            </div>
+
+            <!-- CONTA (modo mini hover) -->
+            <div v-else class="menu-section">
+              <div
+                class="menu-hover-container"
+                @mouseenter="openHoverMenu('dashboard')"
+                @mouseleave="closeHoverMenuWithDelay('dashboard')"
+              >
+                <q-item clickable v-ripple class="menu-expansion-header dashboard-color">
+                  <q-item-section avatar>
+                    <q-icon name="dashboard" />
+                  </q-item-section>
+                </q-item>
+                <q-menu
+                  ref="dashboardMenuRef"
+                  :model-value="hoverMenuActive === 'dashboard'"
+                  anchor="top right"
+                  self="top left"
+                  :offset="[5, 0]"
+                  class="hover-menu"
+                  @mouseenter="cancelCloseHoverMenu"
+                  @mouseleave="closeHoverMenu('dashboard')"
+                >
+                  <q-list dense>
+                    <q-item
+                      clickable
+                      :class="{ 'hover-menu-item-active': isActiveRoute('/abrir') }"
+                      @click="navigateTo('/abrir')"
+                    >
+                      <q-item-section>Abrir</q-item-section>
+                    </q-item>
+                    <q-item
+                      clickable
+                      :class="{ 'hover-menu-item-active': isActiveRoute('/chamados') }"
+                      @click="navigateTo('/chamados')"
+                    >
+                      <q-item-section>Chamados</q-item-section>
+                    </q-item>
+                    <q-item
+                      clickable
+                      :class="{ 'hover-menu-item-active': isActiveRoute('/excluidos') }"
+                      @click="navigateTo('/excluidos')"
+                    >
+                      <q-item-section>Excluídos</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </div>
+            </div>
 
           </div>
         </q-scroll-area>
@@ -455,10 +539,8 @@ const menuGroups = {
     '/excluidos'
   ],
 
-  financiamento: [
-    '/projeto',
-    '/dashboard',
-    '/status'
+  conta: [
+    '/perfil',
   ]
 }
 

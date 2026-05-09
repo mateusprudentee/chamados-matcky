@@ -96,6 +96,7 @@ export default {
       userAvatar: '',
       userRole: '',
       isLoggedIn: false,
+      loading: true,
 
       suggestions: [
         'Abertura de chamado para suporte técnico',
@@ -224,27 +225,34 @@ export default {
 
   methods: {
     async loadUserProfile() {
+      this.loading = true
+
       try {
         // Tenta recuperar do localStorage primeiro (mais rápido)
         const cachedUser = localStorage.getItem('userData')
+        const token = localStorage.getItem('authToken')
+
+        console.log('Token encontrado:', !!token)
+        console.log('UserData cacheado:', cachedUser)
+
         if (cachedUser) {
           const user = JSON.parse(cachedUser)
           this.userName = user.username || user.name || 'Usuário'
           this.userAvatar = user.avatar || ''
           this.userRole = user.role || 'membro'
           this.isLoggedIn = true
+          console.log('Usuário carregado do cache:', this.userName)
         }
-
-        // Busca dados atualizados da API
-        const token = localStorage.getItem('authToken')
 
         if (!token) {
           this.userName = 'Visitante'
           this.isLoggedIn = false
+          this.loading = false
           return
         }
 
-        const response = await fetch('https://boom-matcky.onrender.com/api/members/profile', {
+        // Tenta usar a rota /api/auth/me primeiro (mais comum)
+        let response = await fetch('https://boom-matcky.onrender.com/api/auth/me', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -252,32 +260,73 @@ export default {
           }
         })
 
+        // Se falhar, tenta /api/members/profile
+        if (!response.ok) {
+          console.log('Tentando rota alternativa /api/members/profile')
+          response = await fetch('https://boom-matcky.onrender.com/api/members/profile', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+        }
+
+        // Se ainda falhar, tenta buscar pelo username do cache
+        if (!response.ok && cachedUser) {
+          const cachedUserData = JSON.parse(cachedUser)
+          if (cachedUserData.username) {
+            console.log('Tentando buscar por username:', cachedUserData.username)
+            response = await fetch(`https://boom-matcky.onrender.com/api/members/${cachedUserData.username}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            })
+          }
+        }
+
         if (response.ok) {
           const userData = await response.json()
+          console.log('Dados do usuário recebidos:', userData)
 
-          // Atualiza os dados
-          this.userName = userData.username || userData.name || 'Usuário'
-          this.userAvatar = userData.avatar || ''
-          this.userRole = userData.role || 'membro'
+          // Ajusta para diferentes formatos de resposta
+          const user = userData.user || userData
+
+          this.userName = user.username || user.name || user.nickname || 'Usuário'
+          this.userAvatar = user.avatar || ''
+          this.userRole = user.role || 'membro'
           this.isLoggedIn = true
 
           // Atualiza o cache
-          localStorage.setItem('userData', JSON.stringify(userData))
+          localStorage.setItem('userData', JSON.stringify(user))
+          console.log('Perfil atualizado com sucesso:', this.userName)
         } else if (response.status === 401) {
-          // Token expirado ou inválido
           console.warn('Token inválido ou expirado')
           this.userName = 'Visitante'
           this.isLoggedIn = false
           localStorage.removeItem('authToken')
           localStorage.removeItem('userData')
+          localStorage.removeItem('captcha_expire')
         } else {
-          this.userName = 'Usuário'
-          this.isLoggedIn = false
+          console.error('Erro na resposta:', response.status)
+          // Se não conseguiu buscar da API mas tem cache, mantém o cache
+          if (!cachedUser) {
+            this.userName = 'Usuário'
+            this.isLoggedIn = false
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar perfil do usuário:', error)
-        this.userName = 'Usuário'
-        this.isLoggedIn = false
+        // Se tem cache, mantém o cache
+        const cachedUser = localStorage.getItem('userData')
+        if (!cachedUser) {
+          this.userName = 'Usuário'
+          this.isLoggedIn = false
+        }
+      } finally {
+        this.loading = false
       }
     },
 
@@ -297,25 +346,19 @@ export default {
       }, 150)
     },
 
-    // Método para logout
     async logout() {
       try {
-        // Limpa os dados locais
         localStorage.removeItem('authToken')
         localStorage.removeItem('userData')
-
-        // Reseta os estados
+        localStorage.removeItem('captcha_expire')
         this.userName = 'Visitante'
         this.isLoggedIn = false
-
-        // Redireciona para o login
         this.$router.push('/login')
       } catch (error) {
         console.error('Erro ao fazer logout:', error)
       }
     },
 
-    // Método para atualizar os dados do usuário manualmente
     async refreshUserData() {
       await this.loadUserProfile()
     }

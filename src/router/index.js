@@ -2,16 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
 import axios from 'axios'
 
-// Constantes de roles
-const ROLES = {
-  MASTER: 'master',
-  MANAGER: 'gerente',
-  ADMIN: 'admin',
-  MODERATOR: 'moderador',
-  HELPER: 'ajudante',
-  MEMBER: 'membro',
-  GUEST: 'guest'
-}
+
 
 // Função auxiliar para checar validade do captcha
 const isCaptchaOk = () => {
@@ -116,7 +107,7 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // 5. Verificação de roles/permissões
+  // 5. Verificação de roles/permissões usando a constante ROLES
   const requiredRoles = to.meta.requiredRole
   if (requiredRoles) {
     if (!authToken || !userData.role) {
@@ -126,10 +117,14 @@ router.beforeEach(async (to, from, next) => {
     // Converte para array se for string única
     const rolesArray = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
 
-    // Verifica se o usuário tem alguma das roles necessárias
-    const hasPermission = rolesArray.some(role =>
-      userData.role?.toLowerCase() === role.toLowerCase()
-    )
+    // Obtém o nível hierárquico do usuário
+    const userRoleLevel = Object.values(ROLES).indexOf(userData.role?.toLowerCase())
+
+    // Verifica se o usuário tem permissão baseado na hierarquia
+    const hasPermission = rolesArray.some(role => {
+      const requiredRoleLevel = Object.values(ROLES).indexOf(role.toLowerCase())
+      return userRoleLevel !== -1 && userRoleLevel <= requiredRoleLevel
+    })
 
     if (!hasPermission) {
       return next('/404')

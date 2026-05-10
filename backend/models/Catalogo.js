@@ -1,4 +1,4 @@
-import { db } from '../src/database.js'; // Corrigido o caminho - removido /src
+import { db } from '../src/database.js';
 
 class Catalogo {
   static async getTipos() {

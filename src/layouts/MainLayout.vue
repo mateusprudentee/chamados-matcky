@@ -406,46 +406,33 @@
             <div v-else class="menu-section">
               <div
                 class="menu-hover-container"
-                @mouseenter="openHoverMenu('dashboard')"
-                @mouseleave="closeHoverMenuWithDelay('dashboard')"
+                @mouseenter="openHoverMenu('conta')"
+                @mouseleave="closeHoverMenuWithDelay('conta')"
               >
                 <q-item clickable v-ripple class="menu-expansion-header dashboard-color">
                   <q-item-section avatar>
-                    <q-icon name="dashboard" />
+                    <q-icon name="badge" />
                   </q-item-section>
                 </q-item>
                 <q-menu
                   ref="dashboardMenuRef"
-                  :model-value="hoverMenuActive === 'dashboard'"
+                  :model-value="hoverMenuActive === 'conta'"
                   anchor="top right"
                   self="top left"
                   :offset="[5, 0]"
                   class="hover-menu"
                   @mouseenter="cancelCloseHoverMenu"
-                  @mouseleave="closeHoverMenu('dashboard')"
+                  @mouseleave="closeHoverMenu('conta')"
                 >
                   <q-list dense>
                     <q-item
                       clickable
-                      :class="{ 'hover-menu-item-active': isActiveRoute('/abrir') }"
-                      @click="navigateTo('/abrir')"
+                      :class="{ 'hover-menu-item-active': isActiveRoute('/perfil') }"
+                      @click="navigateTo('/perfil')"
                     >
-                      <q-item-section>Abrir</q-item-section>
+                      <q-item-section>Perfil</q-item-section>
                     </q-item>
-                    <q-item
-                      clickable
-                      :class="{ 'hover-menu-item-active': isActiveRoute('/chamados') }"
-                      @click="navigateTo('/chamados')"
-                    >
-                      <q-item-section>Chamados</q-item-section>
-                    </q-item>
-                    <q-item
-                      clickable
-                      :class="{ 'hover-menu-item-active': isActiveRoute('/excluidos') }"
-                      @click="navigateTo('/excluidos')"
-                    >
-                      <q-item-section>Excluídos</q-item-section>
-                    </q-item>
+
                   </q-list>
                 </q-menu>
               </div>

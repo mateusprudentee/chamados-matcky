@@ -56,11 +56,6 @@
                       <q-skeleton type="rect" height="200px" animation="wave" />
                     </div>
 
-                    <!-- Skeleton para Anexos -->
-                    <div class="q-mb-lg">
-                      <q-skeleton type="rect" height="56px" animation="wave" />
-                    </div>
-
                     <!-- Skeleton para Botão -->
                     <div class="row justify-end">
                       <q-skeleton type="rect" width="120px" height="36px" animation="wave" />
@@ -212,42 +207,6 @@
                       />
                     </div>
 
-                    <!-- Anexos -->
-                    <div class="q-mb-lg">
-                      <div class="text-subtitle2 text-weight-medium q-mb-sm">
-                        <q-icon name="attach_file" size="16px" color="primary" class="q-mr-xs" />
-                        Anexos (prints, logs, documentos)
-                      </div>
-                      <q-file
-                        v-model="form.anexos"
-                        outlined
-                        dense
-                        multiple
-                        counter
-                        max-files="5"
-                        max-total-size="10485760"
-                        accept=".jpg,.png,.pdf,.doc,.docx,.txt,.log"
-                        hint="Formatos aceitos: JPG, PNG, PDF, DOC, TXT, LOG • Máx: 10MB"
-                      >
-                        <template v-slot:prepend>
-                          <q-icon name="cloud_upload" color="primary" />
-                        </template>
-                        <template v-slot:file="{ index, file }">
-                          <q-chip
-                            removable
-                            dense
-                            @remove="removerAnexo(index)"
-                            :label="file.name"
-                            color="primary"
-                            text-color="white"
-                            size="sm"
-                          >
-                            <q-avatar icon="insert_drive_file" color="white" text-color="primary" size="20px" />
-                          </q-chip>
-                        </template>
-                      </q-file>
-                    </div>
-
                     <!-- Botões de Ação -->
                     <div class="row justify-end q-gutter-sm">
                       <q-btn
@@ -279,7 +238,7 @@ const API_URL = 'https://chamados-backend-4efw.onrender.com/api'
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 30000, // Aumentei o timeout para 30 segundos
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -309,8 +268,7 @@ export default {
       subcategoria: '',
       titulo: '',
       prioridade: '',
-      descricao: '',
-      anexos: []
+      descricao: ''
     })
 
     const usuarioLogado = ref({
@@ -341,24 +299,19 @@ export default {
       return colors[prioridade] || 'grey'
     }
 
-    const removerAnexo = (index) => {
-      form.value.anexos.splice(index, 1)
-    }
-
     // Carregar dados iniciais da API com timeout e retry
     const carregarDadosIniciais = async (tentativa = 1) => {
       const maxTentativas = 3
 
       try {
-        // Usar Promise.race para timeout global
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Timeout na conexão com o servidor')), 30000)
         })
 
         const requestPromise = Promise.all([
-          api.get('/catalogo/tipos'),
-          api.get('/catalogo/categorias'),
-          api.get('/catalogo/prioridades')
+          api.get('/tipos'),
+          api.get('/categorias'),
+          api.get('/prioridades')
         ])
 
         const [tiposRes, catRes, priorRes] = await Promise.race([requestPromise, timeoutPromise])
@@ -367,19 +320,16 @@ export default {
         if (catRes.data.success) categorias.value = catRes.data.data
         if (priorRes.data.success) prioridades.value = priorRes.data.data
 
-        // Limpar erro se existir
         erroCarregamento.value = ''
 
       } catch (error) {
         console.error(`Erro ao carregar dados iniciais (tentativa ${tentativa}/${maxTentativas}):`, error)
 
         if (tentativa < maxTentativas) {
-          // Aguardar antes de tentar novamente
-          await new Promise(resolve => setTimeout(resolve, 1))
+          await new Promise(resolve => setTimeout(resolve, 1000))
           return carregarDadosIniciais(tentativa + 1)
         }
 
-        // Verificar tipo de erro
         let mensagemErro = ''
         if (error.message === 'Timeout na conexão com o servidor') {
           mensagemErro = 'Servidor demorou muito para responder. Verifique sua conexão.'
@@ -388,11 +338,10 @@ export default {
         } else if (error.message === 'Network Error') {
           mensagemErro = 'Erro de rede. Verifique sua conexão com a internet.'
         } else {
-          mensagemErro = 'Não conseguimos retornar os dados.'
+          mensagemErro = 'Não foi possível carregar os dados do servidor.'
         }
 
         erroCarregamento.value = mensagemErro
-
 
       } finally {
         loadingInicial.value = false
@@ -422,7 +371,7 @@ export default {
           setTimeout(() => reject(new Error('Timeout ao carregar subcategorias')), 15000)
         })
 
-        const requestPromise = api.get(`/catalogo/subcategorias?categoria=${form.value.categoria}`)
+        const requestPromise = api.get(`/subcategorias?categoria=${form.value.categoria}`)
         const response = await Promise.race([requestPromise, timeoutPromise])
 
         if (response.data.success) {
@@ -441,26 +390,6 @@ export default {
       } finally {
         loadingSubcategorias.value = false
       }
-    }
-
-    // Converter arquivos para base64
-    const converterAnexosParaBase64 = async (files) => {
-      const anexosConvertidos = []
-      for (const file of files) {
-        const base64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve(reader.result)
-          reader.onerror = reject
-          reader.readAsDataURL(file)
-        })
-        anexosConvertidos.push({
-          nome: file.name,
-          tipo: file.type,
-          tamanho: file.size,
-          dados: base64
-        })
-      }
-      return anexosConvertidos
     }
 
     // Abrir chamado
@@ -487,10 +416,6 @@ export default {
           const tipoSelecionado = tiposChamado.value.find(t => t.value === form.value.tipo)
           const prioridadeSelecionada = prioridades.value.find(p => p.value === form.value.prioridade)
 
-          const anexosConvertidos = form.value.anexos.length > 0
-            ? await converterAnexosParaBase64(form.value.anexos)
-            : []
-
           const dadosChamado = {
             tipo: form.value.tipo,
             icone_tipo: tipoSelecionado?.icone || '',
@@ -499,7 +424,6 @@ export default {
             titulo: form.value.titulo,
             prioridade: form.value.prioridade,
             descricao: form.value.descricao,
-            anexos: anexosConvertidos,
             nome_usuario: usuarioLogado.value.nome,
             email_usuario: usuarioLogado.value.email,
             departamento_usuario: usuarioLogado.value.departamento,
@@ -522,16 +446,7 @@ export default {
               message: `Chamado #${numeroChamado} aberto com sucesso!`,
               icon: 'check',
               position: 'top-right',
-              timeout: 5000,
-              actions: [
-                {
-                  label: 'Acompanhar',
-                  color: 'white',
-                  handler: () => {
-                    console.log('Acompanhar chamado:', numeroChamado)
-                  }
-                }
-              ]
+              timeout: 5000
             })
 
             // Limpar formulário
@@ -541,8 +456,7 @@ export default {
               subcategoria: '',
               titulo: '',
               prioridade: '',
-              descricao: '',
-              anexos: []
+              descricao: ''
             }
           }
         } catch (error) {
@@ -590,7 +504,6 @@ export default {
       recarregando,
       erroCarregamento,
       getPrioridadeColor,
-      removerAnexo,
       carregarSubcategorias,
       abrirChamado,
       recarregarDados
@@ -598,6 +511,8 @@ export default {
   }
 }
 </script>
+
+
 
 <style scoped>
 .tipo-card {

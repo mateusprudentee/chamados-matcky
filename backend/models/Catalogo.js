@@ -3,67 +3,80 @@ import { getPool } from '../src/database.js';
 class CatalogoModel {
 
   static async getTipos() {
-    let connection;
+    const pool = await getPool();
+    const connection = await pool.getConnection();
 
     try {
-      const pool = await getPool();
-      connection = await pool.getConnection();
-
-      const [rows] = await connection.execute(
-        'SELECT * FROM tipos_chamado ORDER BY nome ASC'
-      );
+      const [rows] = await connection.execute(`
+        SELECT *
+        FROM tipos_chamado
+        WHERE ativo = 1
+        ORDER BY label ASC
+      `);
 
       return rows;
 
     } finally {
-      if (connection) connection.release();
+      connection.release();
     }
   }
 
   static async getCategorias() {
-    let connection;
+    const pool = await getPool();
+    const connection = await pool.getConnection();
 
     try {
-      const pool = await getPool();
-      connection = await pool.getConnection();
-
-      const [rows] = await connection.execute(
-        'SELECT * FROM categorias ORDER BY nome ASC'
-      );
+      const [rows] = await connection.execute(`
+        SELECT *
+        FROM categorias
+        WHERE ativo = 1
+        ORDER BY label ASC
+      `);
 
       return rows;
 
     } finally {
-      if (connection) connection.release();
+      connection.release();
     }
   }
 
   static async getSubcategorias(categoria) {
-    let connection;
+    const pool = await getPool();
+    const connection = await pool.getConnection();
 
     try {
-      const pool = await getPool();
-      connection = await pool.getConnection();
-
-      const [rows] = await connection.execute(
-        'SELECT * FROM subcategorias WHERE categoria = ? ORDER BY nome ASC',
-        [categoria]
-      );
+      const [rows] = await connection.execute(`
+        SELECT *
+        FROM subcategorias
+        WHERE categoria_value = ?
+        AND ativo = 1
+        ORDER BY label ASC
+      `, [categoria]);
 
       return rows;
 
     } finally {
-      if (connection) connection.release();
+      connection.release();
     }
   }
 
   static async getPrioridades() {
-    return [
-      { valor: 'baixa', label: 'Baixa' },
-      { valor: 'media', label: 'Média' },
-      { valor: 'alta', label: 'Alta' },
-      { valor: 'critica', label: 'Crítica' }
-    ];
+    const pool = await getPool();
+    const connection = await pool.getConnection();
+
+    try {
+      const [rows] = await connection.execute(`
+        SELECT *
+        FROM prioridades
+        WHERE ativo = 1
+        ORDER BY id ASC
+      `);
+
+      return rows;
+
+    } finally {
+      connection.release();
+    }
   }
 }
 

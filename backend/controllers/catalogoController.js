@@ -1,5 +1,4 @@
 import CatalogoModel from '../models/Catalogo.js';
-import { db } from '../src/database.js';
 
 class CatalogoController {
   static async getTipos(req, res) {
@@ -19,7 +18,7 @@ class CatalogoController {
       return res.status(500).json({
         success: false,
         message: 'Erro ao carregar tipos de chamado',
-        error: error.message // Remove em produção
+        error: error.message
       });
     }
   }
@@ -41,7 +40,7 @@ class CatalogoController {
       return res.status(500).json({
         success: false,
         message: 'Erro ao carregar categorias',
-        error: error.message // Remove em produção
+        error: error.message
       });
     }
   }
@@ -64,7 +63,7 @@ class CatalogoController {
       return res.status(500).json({
         success: false,
         message: 'Erro ao carregar subcategorias',
-        error: error.message // Remove em produção
+        error: error.message
       });
     }
   }
@@ -86,24 +85,18 @@ class CatalogoController {
       return res.status(500).json({
         success: false,
         message: 'Erro ao carregar prioridades',
-        error: error.message // Remove em produção
+        error: error.message
       });
     }
   }
 
-  // ENDPOINT DE DIAGNÓSTICO - Adicione isso para testar
   static async testDatabase(req, res) {
     try {
-      // Testar conexão
+      const { db } = await import('../src/database.js');
       const [result] = await db.query('SELECT 1 as connected, NOW() as time, DATABASE() as db_name');
-
-      // Listar todas as tabelas
       const [tables] = await db.query('SHOW TABLES');
-
-      // Verificar tabela categorias especificamente
       const [categoriasTable] = await db.query("SHOW TABLES LIKE 'categorias'");
 
-      // Verificar estrutura da tabela categorias se existir
       let categoriasStructure = null;
       if (categoriasTable.length > 0) {
         [categoriasStructure] = await db.query('DESCRIBE categorias');

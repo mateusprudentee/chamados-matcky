@@ -128,7 +128,10 @@ async function checkPoolHealth() {
   }
 }
 
-// Exportar funções - CORRIGIDO
+// INICIALIZAR O POOL IMEDIATAMENTE
+await initializePool();
+
+// Exportar funções - CORRIGIDO (removeu a vírgula extra)
 export {
   getPool,
   withConnection,

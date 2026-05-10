@@ -92,7 +92,6 @@ class CatalogoController {
 
   static async testDatabase(req, res) {
     try {
-      const { db } = await import('../src/database.js');
       const [result] = await db.query('SELECT 1 as connected, NOW() as time, DATABASE() as db_name');
       const [tables] = await db.query('SHOW TABLES');
       const [categoriasTable] = await db.query("SHOW TABLES LIKE 'categorias'");

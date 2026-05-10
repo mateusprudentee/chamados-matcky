@@ -7,10 +7,10 @@ import http from 'http';
 import authRoutes from '../routes/authRoutes.js';
 import membersRoutes from '../routes/membersRoutes.js';
 import catalogoRoutes from '../routes/catalogoRoutes.js';
+import chamadoRoutes from '../routes/chamadoRoutes.js';
 
-
-import chamadoRoutes from '../routes/chamadoRoutes.js'; // Nova importação
-import { initializePool } from './database.js';
+// CORREÇÃO: Importar corretamente do database.js
+import { initializePool, getPool, checkPoolHealth } from './database.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -29,7 +29,7 @@ const allowedOrigins = [
   'https://redeboom.com',
   'https://loja.redeboom.com',
   'https://boom-matcky.onrender.com',
-  'https://chamados-backend-4efw.onrender.com' // Adiciona a nova URL
+  'https://chamados-backend-4efw.onrender.com'
 ];
 
 app.use(cors({
@@ -41,6 +41,7 @@ app.use(cors({
       return callback(null, true);
     }
 
+    console.log(`CORS bloqueado para origem: ${origin}`);
     return callback(new Error('CORS bloqueado'));
   },
   credentials: true
@@ -50,41 +51,90 @@ app.use(cors({
 // MIDDLEWARES
 // ==========================================
 
-app.use(bodyParser.json());
-app.use(express.json());
-
-// Aumentar limite para upload de arquivos
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 process.env.TZ = 'UTC';
+
+// ==========================================
+// MIDDLEWARE PARA VERIFICAR BANCO DE DADOS
+// ==========================================
+
+app.use(async (req, res, next) => {
+  // Pular verificação para rotas de health check
+  if (req.path === '/api/status' || req.path === '/ping') {
+    return next();
+  }
+
+  try {
+    const isHealthy = await checkPoolHealth();
+    if (!isHealthy) {
+      console.warn('Pool não saudável, tentando reinicializar...');
+      await initializePool();
+    }
+    next();
+  } catch (error) {
+    console.error('Erro ao verificar saúde do pool:', error);
+    next();
+  }
+});
 
 // ==========================================
 // ROTA API STATUS
 // ==========================================
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'API Online - Sistema de Chamados',
-    version: '1.0.0',
-    services: {
-      auth: true,
-      members: true,
-      chamados: true,
-      websocket: true
-    },
-    endpoints: {
-      chamados: [
-        'POST /api/chamados - Criar chamado',
-        'GET /api/chamados - Listar chamados',
-        'GET /api/chamados/:id - Buscar por ID',
-        'PUT /api/chamados/:id - Atualizar chamado',
-        'GET /api/chamados/usuario/:email - Chamados do usuário'
-      ]
-    },
-    timestamp: new Date().toISOString()
-  });
+app.get('/api/status', async (req, res) => {
+  try {
+    const dbStatus = await checkPoolHealth();
+    const pool = await getPool();
+    let dbVersion = null;
+    let dbName = null;
+
+    if (dbStatus && pool) {
+      try {
+        const [rows] = await pool.execute('SELECT VERSION() as version, DATABASE() as db_name');
+        dbVersion = rows[0].version;
+        dbName = rows[0].db_name;
+      } catch (err) {
+        console.error('Erro ao consultar versão do DB:', err);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'API Online - Sistema de Chamados',
+      version: '1.0.0',
+      services: {
+        auth: true,
+        members: true,
+        chamados: true,
+        websocket: true,
+        database: dbStatus
+      },
+      database: {
+        connected: dbStatus,
+        version: dbVersion,
+        name: dbName
+      },
+      endpoints: {
+        chamados: [
+          'POST /api/chamados - Criar chamado',
+          'GET /api/chamados - Listar chamados',
+          'GET /api/chamados/:id - Buscar por ID',
+          'PUT /api/chamados/:id - Atualizar chamado',
+          'GET /api/chamados/usuario/:email - Chamados do usuário'
+        ]
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao verificar status',
+      error: error.message
+    });
+  }
 });
 
 // ==========================================
@@ -94,7 +144,8 @@ app.get('/api/status', (req, res) => {
 app.get('/ping', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'pong'
+    message: 'pong',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -119,7 +170,32 @@ app.use((req, res, next) => {
 app.use('', authRoutes);
 app.use('', membersRoutes);
 app.use('/api', catalogoRoutes);
-app.use('/api', chamadoRoutes); // Adiciona as rotas de chamados
+app.use('/api', chamadoRoutes);
+
+// ==========================================
+// ROTA DE TESTE DO BANCO
+// ==========================================
+
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const pool = await getPool();
+    const [result] = await pool.execute('SELECT 1 as connected, NOW() as current_time, DATABASE() as database_name');
+    const [tables] = await pool.execute('SHOW TABLES');
+
+    res.json({
+      success: true,
+      connection: result[0],
+      tables: tables.map(row => Object.values(row)[0]),
+      poolActive: true
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: error.code
+    });
+  }
+});
 
 // ==========================================
 // MIDDLEWARE DE ERRO PARA CHAMADOS
@@ -133,6 +209,15 @@ app.use((err, req, res, next) => {
     return res.status(403).json({
       success: false,
       message: 'Origem não permitida pelo CORS'
+    });
+  }
+
+  // Erro de banco de dados
+  if (err.code === 'ECONNREFUSED') {
+    return res.status(503).json({
+      success: false,
+      message: 'Banco de dados indisponível',
+      error: 'Conexão com o banco de dados foi recusada'
     });
   }
 
@@ -165,7 +250,7 @@ const wss = new WebSocketServer({
 const activeConnections = {
   global: new Map(),
   categories: new Map(),
-  chamados: new Map() // Adiciona monitoramento de chamados
+  chamados: new Map()
 };
 
 // ==========================================
@@ -187,7 +272,7 @@ const heartbeatInterval = setInterval(() => {
 // ==========================================
 
 wss.on('connection', (ws, req) => {
-  console.log('Novo cliente WebSocket conectado');
+  console.log('✅ Novo cliente WebSocket conectado');
 
   ws.isAlive = true;
 
@@ -202,10 +287,8 @@ wss.on('connection', (ws, req) => {
 
   const category = urlParams.get('category');
   const subcategory = urlParams.get('subcategory');
-  const chamadoId = urlParams.get('chamadoId'); // ID do chamado para notificações
-
-  const clientId =
-    urlParams.get('clientId') || `anon-${Date.now()}`;
+  const chamadoId = urlParams.get('chamadoId');
+  const clientId = urlParams.get('clientId') || `anon-${Date.now()}`;
 
   const registerConnection = (map, key) => {
     if (!map.has(key)) {
@@ -217,30 +300,35 @@ wss.on('connection', (ws, req) => {
   registerConnection(activeConnections, 'global');
 
   if (category) {
-    registerConnection(
-      activeConnections.categories,
-      category
-    );
+    registerConnection(activeConnections.categories, category);
 
     if (subcategory) {
-      const compoundKey =
-        `${category}:${subcategory}`;
-      registerConnection(
-        activeConnections.categories,
-        compoundKey
-      );
+      const compoundKey = `${category}:${subcategory}`;
+      registerConnection(activeConnections.categories, compoundKey);
     }
   }
 
-  // Registra para notificações de chamados específicos
   if (chamadoId) {
     registerConnection(activeConnections.chamados, chamadoId);
   }
 
+  // Enviar confirmação de conexão
+  ws.send(JSON.stringify({
+    type: 'connected',
+    clientId: clientId,
+    timestamp: Date.now(),
+    subscriptions: {
+      global: true,
+      category: category || null,
+      subcategory: subcategory || null,
+      chamadoId: chamadoId || null
+    }
+  }));
+
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message.toString());
-      console.log('Mensagem recebida:', data);
+      console.log('📨 Mensagem recebida:', data);
 
       if (data.type === 'ping') {
         ws.send(JSON.stringify({
@@ -249,7 +337,6 @@ wss.on('connection', (ws, req) => {
         }));
       }
 
-      // Notificações de chamados em tempo real
       if (data.type === 'subscribe_chamado' && data.chamadoId) {
         registerConnection(activeConnections.chamados, data.chamadoId);
         ws.send(JSON.stringify({
@@ -259,13 +346,27 @@ wss.on('connection', (ws, req) => {
         }));
       }
 
+      if (data.type === 'unsubscribe_chamado' && data.chamadoId) {
+        if (activeConnections.chamados.has(data.chamadoId)) {
+          activeConnections.chamados.get(data.chamadoId).delete(clientId);
+          if (activeConnections.chamados.get(data.chamadoId).size === 0) {
+            activeConnections.chamados.delete(data.chamadoId);
+          }
+        }
+        ws.send(JSON.stringify({
+          type: 'unsubscribed',
+          chamadoId: data.chamadoId,
+          message: 'Removido das notificações do chamado'
+        }));
+      }
+
     } catch (error) {
       console.error('Erro ao processar mensagem WebSocket:', error);
     }
   });
 
   ws.on('close', () => {
-    console.log(`Cliente ${clientId} desconectado`);
+    console.log(`❌ Cliente ${clientId} desconectado`);
 
     const removeFromMap = (map, key) => {
       if (map.has(key)) {
@@ -286,14 +387,13 @@ wss.on('connection', (ws, req) => {
       }
     }
 
-    // Remove de notificações de chamados
     if (chamadoId) {
       removeFromMap(activeConnections.chamados, chamadoId);
     }
   });
 
   ws.on('error', (error) => {
-    console.error('Erro no WebSocket:', error);
+    console.error('❌ Erro no WebSocket:', error);
   });
 });
 
@@ -306,14 +406,15 @@ const notifyClients = ({
   data,
   category = null,
   subcategory = null,
-  chamadoId = null, // Novo parâmetro
+  chamadoId = null,
   excludeClientId = null
 }) => {
-  console.log(`Enviando notificação: ${type}`, data);
+  console.log(`📢 Enviando notificação: ${type}`, data);
 
   const message = JSON.stringify({
     type,
-    data
+    data,
+    timestamp: Date.now()
   });
 
   const sendToConnections = (connections) => {
@@ -327,7 +428,6 @@ const notifyClients = ({
     });
   };
 
-  // Notificações específicas de chamados
   if (chamadoId && activeConnections.chamados.has(chamadoId)) {
     sendToConnections(activeConnections.chamados.get(chamadoId));
     return;
@@ -374,14 +474,35 @@ initializePool()
   .then(() => {
     server.listen(port, () => {
       console.log(`🚀 Servidor HTTP e WebSocket rodando na porta ${port}`);
-      console.log(`📡 WebSocket disponível em wss://boom-matcky.onrender.com/ws`);
+      console.log(`📡 WebSocket disponível em wss://chamados-backend-4efw.onrender.com/ws`);
       console.log(`📋 API de Chamados: https://chamados-backend-4efw.onrender.com/api/chamados`);
       console.log(`🌐 Status: https://chamados-backend-4efw.onrender.com/api/status`);
+      console.log(`✅ Banco de dados: Conectado`);
     });
   })
   .catch(err => {
-    console.error('Falha ao inicializar o banco de dados:', err);
+    console.error('❌ Falha ao inicializar o banco de dados:', err);
     process.exit(1);
   });
+
+// ==========================================
+// TRATAMENTO DE SINAIS PARA ENCERRAMENTO GRACEFUL
+// ==========================================
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM recebido, encerrando servidor...');
+  server.close(() => {
+    console.log('Servidor encerrado');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT recebido, encerrando servidor...');
+  server.close(() => {
+    console.log('Servidor encerrado');
+    process.exit(0);
+  });
+});
 
 export { app, server, notifyClients };

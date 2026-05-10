@@ -7,8 +7,8 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || 'mm19102005MM!',
   database: process.env.DB_NAME || 'mate5357_chamados',
   waitForConnections: true,
-  connectionLimit: 5, // Aumentado para evitar problemas
-  queueLimit: 0, // Sem limite na fila
+  connectionLimit: 5,
+  queueLimit: 0,
   acquireTimeout: 30000,
   timeout: 60000,
   enableKeepAlive: true,
@@ -35,9 +35,9 @@ const transporter = nodemailer.createTransport(smtpConfig);
 // Verificar conexão SMTP
 transporter.verify(function(error, success) {
   if (error) {
-    console.log('Erro na conexão SMTP:', error);
+    console.log('❌ Erro na conexão SMTP:', error);
   } else {
-    console.log('Servidor SMTP pronto para enviar mensagens');
+    console.log('✅ Servidor SMTP pronto para enviar mensagens');
   }
 });
 
@@ -128,17 +128,40 @@ async function checkPoolHealth() {
   }
 }
 
+// Função de query para facilitar o uso
+const query = async (sql, params = []) => {
+  const poolInstance = await getPool();
+  return poolInstance.execute(sql, params);
+};
+
+// Objeto db com método query (SOLUÇÃO PRINCIPAL)
+const db = {
+  query: async (sql, params = []) => {
+    const poolInstance = await getPool();
+    return poolInstance.execute(sql, params);
+  },
+  execute: async (sql, params = []) => {
+    const poolInstance = await getPool();
+    return poolInstance.execute(sql, params);
+  },
+  getConnection: async () => {
+    const poolInstance = await getPool();
+    return poolInstance.getConnection();
+  }
+};
+
 // INICIALIZAR O POOL IMEDIATAMENTE
 await initializePool();
 
-// Exportar funções - CORRIGIDO (removeu a vírgula extra)
+// Exportar tudo CORRETAMENTE
 export {
   getPool,
   withConnection,
   checkPoolHealth,
   initializePool,
-  pool as db
+  db,  // <--- AGORA db.query FUNCIONA!
+  query,
+  pool
 };
 
-// Exportar o transporter como default
 export default transporter;

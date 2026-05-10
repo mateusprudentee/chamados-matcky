@@ -1,15 +1,12 @@
 import express from 'express';
-import CatalogoController from '../controllers/catalogoController.js';
+import CatalogoController from '../controllers/CatalogoController.js';
 
 const router = express.Router();
 
-// Rotas existentes
-router.get('/catalogo/tipos', CatalogoController.getTipos);
-router.get('/catalogo/categorias', CatalogoController.getCategorias);
-router.get('/catalogo/subcategorias', CatalogoController.getSubcategorias);
-router.get('/catalogo/prioridades', CatalogoController.getPrioridades);
-
-// ROTA DE TESTE - Adicione isso
-router.get('/catalogo/test-db', CatalogoController.testDatabase);
+router.get('/tipos', CatalogoController.getTipos);
+router.get('/categorias', CatalogoController.getCategorias);
+router.get('/subcategorias', CatalogoController.getSubcategorias);
+router.get('/prioridades', CatalogoController.getPrioridades);
+router.get('/test-database', CatalogoController.testDatabase);
 
 export default router;

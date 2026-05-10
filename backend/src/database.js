@@ -7,35 +7,32 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || 'mm19102005MM!',
   database: process.env.DB_NAME || 'mate5357_chamados',
   waitForConnections: true,
-  connectionLimit: 2, // Número muito reduzido para evitar exceder o limite
-  queueLimit: 10, // Fila de espera para conexões
-  acquireTimeout: 10000, // 30 segundos para adquirir conexão
-  timeout: 10000, // 60 segundos de timeout
-  reconnect: true,
+  connectionLimit: 5, // Aumentado para evitar problemas
+  queueLimit: 0, // Sem limite na fila
+  acquireTimeout: 30000,
+  timeout: 60000,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000
 };
-
-
 
 // Configuração SMTP para Titan Email
 const smtpConfig = {
   host: 'smtp.titan.email',
   port: 465,
-  secure: true, // true para porta 465, false para outras portas
+  secure: true,
   auth: {
     user: 'ajuda@redeboom.com',
     pass: 'mm19102005MM!'
   },
-  connectionTimeout: 30000, // 30 segundos
-  greetingTimeout: 30000,   // 30 segundos para greeting
-  socketTimeout: 30000      // 30 segundos
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000
 };
 
 // Criar transporter
 const transporter = nodemailer.createTransport(smtpConfig);
 
-// Verificar conexão
+// Verificar conexão SMTP
 transporter.verify(function(error, success) {
   if (error) {
     console.log('Erro na conexão SMTP:', error);
@@ -44,39 +41,38 @@ transporter.verify(function(error, success) {
   }
 });
 
-export default transporter;
 // Criar pool de conexões
-let pool;
+let pool = null;
 let lastConnectionTime = 0;
-const CONNECTION_COOLDOWN = 5000; // 5 segundos entre tentativas
+const CONNECTION_COOLDOWN = 5000;
 
 // Função para criar pool com retry
 async function createPoolWithRetry(retries = 3, delay = 2000) {
   for (let i = 0; i < retries; i++) {
     try {
       const currentTime = Date.now();
-      // Esperar um pouco entre tentativas se necessário
       if (currentTime - lastConnectionTime < CONNECTION_COOLDOWN) {
         await new Promise(resolve => setTimeout(resolve, CONNECTION_COOLDOWN));
       }
 
       lastConnectionTime = Date.now();
+
+      // Criar o pool CORRETAMENTE
       const newPool = mysql.createPool(dbConfig);
 
       // Testar a conexão
       const testConn = await newPool.getConnection();
+      console.log('✅ Conexão com o banco de dados estabelecida com sucesso');
       testConn.release();
 
-      console.log('Conexão com o banco de dados estabelecida com sucesso');
       return newPool;
     } catch (error) {
-      console.error(`Tentativa ${i + 1} falhou:`, error.message);
+      console.error(`❌ Tentativa ${i + 1} falhou:`, error.message);
 
       if (i === retries - 1) {
         throw error;
       }
 
-      // Esperar antes da próxima tentativa
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -86,23 +82,27 @@ async function createPoolWithRetry(retries = 3, delay = 2000) {
 async function initializePool() {
   try {
     pool = await createPoolWithRetry();
+    console.log('✅ Pool de conexões inicializado com sucesso');
   } catch (error) {
-    console.error('Falha ao inicializar o pool de conexões:', error.message);
-    // Criar um pool "fake" para evitar crash, mas que lançará erro quando usado
-    pool = {
-      getConnection: () => Promise.reject(error),
-      execute: () => Promise.reject(error),
-      query: () => Promise.reject(error),
-      end: () => Promise.resolve()
-    };
+    console.error('❌ Falha ao inicializar o pool de conexões:', error.message);
+    throw error;
   }
+}
+
+// Função para garantir que o pool está inicializado
+async function getPool() {
+  if (!pool) {
+    await initializePool();
+  }
+  return pool;
 }
 
 // Middleware para gerenciar conexões
 const withConnection = async (callback) => {
+  const poolInstance = await getPool();
   let connection;
   try {
-    connection = await pool.getConnection();
+    connection = await poolInstance.getConnection();
     const result = await callback(connection);
     return result;
   } catch (error) {
@@ -118,7 +118,8 @@ const withConnection = async (callback) => {
 // Função para verificar saúde do pool
 async function checkPoolHealth() {
   try {
-    const connection = await pool.getConnection();
+    const poolInstance = await getPool();
+    const connection = await poolInstance.getConnection();
     connection.release();
     return true;
   } catch (error) {
@@ -127,8 +128,14 @@ async function checkPoolHealth() {
   }
 }
 
-// Inicializar imediatamente
-initializePool();
+// Exportar funções - CORRIGIDO
+export {
+  getPool,
+  withConnection,
+  checkPoolHealth,
+  initializePool,
+  pool as db
+};
 
-// Exportar funções
-export { pool as db, withConnection, checkPoolHealth, initializePool };
+// Exportar o transporter como default
+export default transporter;

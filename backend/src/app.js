@@ -6,6 +6,9 @@ import http from 'http';
 
 import authRoutes from '../routes/authRoutes.js';
 import membersRoutes from '../routes/membersRoutes.js';
+import catalogoRoutes from '../routes/catalogoRoutes.js';
+
+
 import chamadoRoutes from '../routes/chamadoRoutes.js'; // Nova importação
 import { initializePool } from './database.js';
 
@@ -115,6 +118,7 @@ app.use((req, res, next) => {
 
 app.use('', authRoutes);
 app.use('', membersRoutes);
+app.use('/api', catalogoRoutes);
 app.use('/api', chamadoRoutes); // Adiciona as rotas de chamados
 
 // ==========================================

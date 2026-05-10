@@ -5,15 +5,7 @@
     <!-- Top Navbar - Mega Responsivo -->
     <q-header elevated class="bg-white text-black" v-if="isMobileView">
       <q-toolbar class="responsive-navbar">
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleMobileDrawer"
-          class="mobile-menu-btn"
-        />
+
 
         <q-toolbar-title class="mobile-logo-container">
           <router-link to="/" class="mobile-logo-link">
@@ -35,21 +27,19 @@
         >
           <q-menu>
             <q-list style="min-width: 200px">
-              <q-item clickable @click="navigateTo('/dashboard')">
-                <q-item-section>Dashboard</q-item-section>
+              <q-item clickable @click="navigateTo('/novo')">
+                <q-item-section>Abrir chamado</q-item-section>
               </q-item>
-              <q-item clickable @click="navigateTo('/repasses-auxilios-pnae')">
-                <q-item-section>Repasses PNAE</q-item-section>
+              <q-item clickable @click="navigateTo('/chamados')">
+                <q-item-section>Chamados</q-item-section>
               </q-item>
-              <q-item clickable @click="navigateTo('/fonte-publica')">
-                <q-item-section>Fontes Públicas</q-item-section>
+              <q-item clickable @click="navigateTo('/excluidos')">
+                <q-item-section>Excluídos</q-item-section>
               </q-item>
-              <q-item clickable @click="navigateTo('/dados')">
-                <q-item-section>Processamento de Dados</q-item-section>
+              <q-item clickable @click="navigateTo('/perfil')">
+                <q-item-section>Minha conta</q-item-section>
               </q-item>
-              <q-item clickable @click="navigateTo('/verbas-por-municipio')">
-                <q-item-section>Verbas por Município</q-item-section>
-              </q-item>
+
 
               <q-separator />
 
@@ -58,152 +48,11 @@
         </q-btn>
       </q-toolbar>
 
-      <!-- Mobile Drawer -->
-      <q-drawer
-        v-model="mobileDrawerOpen"
-        side="left"
-        bordered
-        :width="280"
-        class="mobile-sidebar"
-      >
-        <div class="mobile-sidebar-header">
-          <div class="mobile-sidebar-logo">
-
-          </div>
-          <q-btn flat dense round icon="close" @click="mobileDrawerOpen = false" />
-        </div>
-
-        <q-scroll-area class="mobile-sidebar-menu">
-          <q-list>
-            <!-- Dashboard -->
-            <q-expansion-item
-              icon="dashboard"
-              label="Dashboard"
-              group="menu"
-              default-opened
-              class="mobile-menu-item"
-            >
-              <q-item clickable v-ripple @click="navigateTo('/dashboard')">
-                <q-item-section>Visão geral</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/fonte-publica')">
-                <q-item-section>Fontes Públicas</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/dados')">
-                <q-item-section>Carregar Dados</q-item-section>
-              </q-item>
-            </q-expansion-item>
-
-            <!-- Financiamento -->
-            <q-expansion-item
-              icon="payments"
-              label="Financiamento"
-              group="menu"
-              class="mobile-menu-item"
-            >
-              <q-item clickable v-ripple @click="navigateTo('/verbas-por-municipio')">
-                <q-item-section>Verbas por Município</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/repasses-auxilios-pnae')">
-                <q-item-section>Repasses e Auxílios PNAE</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/evolucao-2-anos')">
-                <q-item-section>Evolução (2 anos)</q-item-section>
-              </q-item>
-            </q-expansion-item>
-
-            <!-- Capacidade Produtiva -->
-            <q-expansion-item
-              icon="agriculture"
-              label="Capacidade Produtiva"
-              group="menu"
-              class="mobile-menu-item"
-            >
-              <q-item clickable v-ripple @click="navigateTo('/capacidade-por-municipio')">
-                <q-item-section>Capacidade por Município</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/associacoes-cooperativas')">
-                <q-item-section>Associações/Cooperativas</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/assistencia-tecnica')">
-                <q-item-section>Assistência Técnica</q-item-section>
-              </q-item>
-            </q-expansion-item>
-
-            <!-- Indicadores Municipais -->
-            <q-expansion-item
-              icon="analytics"
-              label="Indicadores Municipais"
-              group="menu"
-              class="mobile-menu-item"
-            >
-              <q-item clickable v-ripple @click="navigateTo('/dependencia-agricultura')">
-                <q-item-section>Dependência da Agricultura</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/secretaria-especifica')">
-                <q-item-section>Secretaria Específica</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/populacao-demanda')">
-                <q-item-section>População e Demanda</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/agricultores-ativos-mt')">
-                <q-item-section>Agricultores Ativos (MT)</q-item-section>
-              </q-item>
-            </q-expansion-item>
 
 
 
-            <!-- ODS -->
-            <q-expansion-item
-              icon="flag"
-              label="ODS"
-              group="menu"
-              class="mobile-menu-item"
-            >
-              <q-item clickable v-ripple @click="navigateTo('/ods2-fome-zero')">
-                <q-item-section>ODS 2 - Fome Zero</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/ods3-saude-bem-estar')">
-                <q-item-section>ODS 3 - Saúde e Bem-Estar</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/ods4-educacao-qualidade')">
-                <q-item-section>ODS 4 - Educação Qualidade</q-item-section>
-              </q-item>
-            </q-expansion-item>
 
-            <!-- Portal -->
-            <q-expansion-item
-              icon="more"
-              label="Portal"
-              group="menu"
-              class="mobile-menu-item"
-            >
-              <q-item clickable v-ripple @click="navigateTo('/relatorios')">
-                <q-item-section>Relatórios</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/analise-proximos-meses')">
-                <q-item-section>Análise Próximos Meses</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/infraestrutura')">
-                <q-item-section>Infraestrutura</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple @click="navigateTo('/integracao-automatica')">
-                <q-item-section>Integração Automática</q-item-section>
-              </q-item>
-            </q-expansion-item>
-          </q-list>
-        </q-scroll-area>
 
-        <div class="mobile-sidebar-footer">
-          <div v-if="timeLeft !== 'sem sessão ativa' && timeLeft !== 'Expirou!'">
-            <span>Sessão expira em <b>{{ timeLeft }}</b></span>
-          </div>
-          <div class="mobile-version-info">
-            Versão 1.0 pre-0<br>
-            Matcky <q-icon name="copyright"></q-icon> Todos os direitos reservados.
-          </div>
-        </div>
-      </q-drawer>
     </q-header>
 
     <!-- Sidebar Desktop (sem alterações) -->
@@ -598,9 +447,7 @@ const handleDrawerChange = (val) => {
   }
 }
 
-const toggleMobileDrawer = () => {
-  mobileDrawerOpen.value = !mobileDrawerOpen.value
-}
+
 
 const toggleMobileOptions = () => {
   // q-menu controla automaticamente

@@ -253,7 +253,7 @@ export default {
         }
 
         // Tenta usar a rota /api/auth/me primeiro (mais comum)
-        let response = await fetch('https://boom-matcky.onrender.com/api/auth/me', {
+        let response = await fetch('https://chamados-backend-4efw.onrender.com/api/auth/me', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -264,7 +264,7 @@ export default {
         // Se falhar, tenta /api/members/profile
         if (!response.ok) {
           console.log('Tentando rota alternativa /api/members/profile')
-          response = await fetch('https://boom-matcky.onrender.com/api/members/profile', {
+          response = await fetch('https://chamados-backend-4efw.onrender.com/api/members/profile', {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -278,7 +278,7 @@ export default {
           const cachedUserData = JSON.parse(cachedUser)
           if (cachedUserData.username) {
             console.log('Tentando buscar por username:', cachedUserData.username)
-            response = await fetch(`https://boom-matcky.onrender.com/api/members/${cachedUserData.username}`, {
+            response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${cachedUserData.username}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`,

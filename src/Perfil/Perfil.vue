@@ -275,44 +275,7 @@
                 </template>
               </q-input>
 
-              <div class="row q-col-gutter-sm q-mt-md">
-                <div class="col-4">
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    size="sm"
-                    label="Cravatar"
-                    color="primary"
-                    class="full-width"
-                    @click="sugerirAvatar('cravatar')"
-                  />
-                </div>
-                <div class="col-4">
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    size="sm"
-                    label="MC-Heads"
-                    color="primary"
-                    class="full-width"
-                    @click="sugerirAvatar('mcheads')"
-                  />
-                </div>
-                <div class="col-4">
-                  <q-btn
-                    flat
-                    dense
-                    no-caps
-                    size="sm"
-                    label="Visage"
-                    color="primary"
-                    class="full-width"
-                    @click="sugerirAvatar('visage')"
-                  />
-                </div>
-              </div>
+
             </q-card-section>
 
             <q-card-actions align="right">
@@ -577,7 +540,7 @@ export default {
         }
 
         // Busca dados atualizados da API
-        const response = await fetch(`https://boom-matcky.onrender.com/api/members/${userName.value}`, {
+        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${userName.value}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -623,7 +586,7 @@ export default {
 
     const loadPostCount = async () => {
       try {
-        const response = await fetch(`https://boom-matcky.onrender.com/api/members/${userName.value}/posts`)
+        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${userName.value}/posts`)
         if (response.ok) {
           const data = await response.json()
           postagensCount.value = data.postCount || 0
@@ -636,7 +599,7 @@ export default {
     const loadFollowStats = async () => {
       try {
         const token = localStorage.getItem('authToken')
-        const response = await fetch(`https://boom-matcky.onrender.com/api/seguir/check/${userName.value}`, {
+        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/seguir/check/${userName.value}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -665,7 +628,7 @@ export default {
       const token = localStorage.getItem('authToken')
 
       try {
-        const response = await fetch('https://boom-matcky.onrender.com/api/auth/change-password', {
+        const response = await fetch('https://chamados-backend-4efw.onrender.com/api/auth/change-password', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -715,24 +678,14 @@ export default {
       dialogAvatar.value = true
     }
 
-    const sugerirAvatar = (tipo) => {
-      const nick = userName.value
-      if (tipo === 'cravatar') {
-        avatarUrl.value = `https://cravatar.eu/helmavatar/${nick}/190.png`
-      } else if (tipo === 'mcheads') {
-        avatarUrl.value = `https://mc-heads.net/avatar/${nick}/190`
-      } else if (tipo === 'visage') {
-        avatarUrl.value = `https://visage.surgeplay.com/face/190/${nick}`
-      }
-      avatarPreview.value = avatarUrl.value
-    }
+
 
     const salvarAvatar = async () => {
       loadingAvatar.value = true
       const token = localStorage.getItem('authToken')
 
       try {
-        const response = await fetch('https://boom-matcky.onrender.com/api/members/avatar', {
+        const response = await fetch('https://chamados-backend-4efw.onrender.com/api/members/avatar', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -790,7 +743,7 @@ export default {
       const token = localStorage.getItem('authToken')
 
       try {
-        const response = await fetch(`https://boom-matcky.onrender.com/api/members/${userId.value}/email`, {
+        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${userId.value}/email`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -838,7 +791,7 @@ export default {
       const token = localStorage.getItem('authToken')
 
       try {
-        const response = await fetch('https://boom-matcky.onrender.com/api/members/profile', {
+        const response = await fetch('https://chamados-backend-4efw.onrender.com/api/members/profile', {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -885,7 +838,7 @@ export default {
       const token = localStorage.getItem('authToken')
 
       try {
-        const response = await fetch(`https://boom-matcky.onrender.com/api/assinatura/new/${userName.value}`, {
+        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/assinatura/new/${userName.value}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -1001,7 +954,6 @@ export default {
       isValidEmail,
       alterarSenha,
       abrirDialogAvatar,
-      sugerirAvatar,
       salvarAvatar,
       abrirDialogEmail,
       salvarEmail,

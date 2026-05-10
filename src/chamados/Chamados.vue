@@ -166,7 +166,7 @@
                       :color="getPrioridadeCor(props.row.prioridade)"
                       text-color="white"
                       size="sm"
-                      dense
+
                     >
                       <q-icon :name="getPrioridadeIcone(props.row.prioridade)" size="14px" class="q-mr-xs" />
                       {{ props.row.prioridade }}
@@ -274,9 +274,9 @@
                             :color="getPrioridadeCor(chamadoDetalhe.prioridade)"
                             text-color="white"
                             size="sm"
-                            dense
+
                           >
-                            <q-icon :name="getPrioridadeIcone(chamadoDetalhe.prioridade)" size="14px" class="q-mr-xs" />
+                            <q-icon :name="getPrioridadeIcone(chamadoDetalhe.prioridade)" size="13px" class="q-mr-xs" />
                             {{ chamadoDetalhe.prioridade }}
                           </q-chip>
                         </q-item-label>
@@ -294,24 +294,17 @@
 
                     <q-item>
                       <q-item-section>
-                        <q-item-label caption>Categoria</q-item-label>
-                        <q-item-label>{{ chamadoDetalhe.categoria }}</q-item-label>
-                        <q-item-label caption class="text-grey-6">{{ chamadoDetalhe.subcategoria }}</q-item-label>
+                        <q-item-label caption>INFORMAÇÕES GERAIS</q-item-label>
+                        <q-item-label>Categoria: {{ chamadoDetalhe.categoria }}</q-item-label>
+                        <q-item-label caption class="text-grey-6">Subcategoria: {{ chamadoDetalhe.subcategoria }}</q-item-label>
                       </q-item-section>
                     </q-item>
 
-                    <q-item>
-                      <q-item-section>
-                        <q-item-label caption>Solicitante</q-item-label>
-                        <q-item-label>{{ chamadoDetalhe.solicitante }}</q-item-label>
-                        <q-item-label caption class="text-grey-6">{{ chamadoDetalhe.departamento }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
+
 
                     <q-item>
                       <q-item-section>
-                        <q-item-label caption>Quem Abriu</q-item-label>
-                        <q-item-label>{{ chamadoDetalhe.quemAbre }}</q-item-label>
+                        <q-item-label>Aberto por {{ chamadoDetalhe.quemAbre }}</q-item-label>
                         <q-item-label caption class="text-grey-6">{{ formatarDataCompleta(chamadoDetalhe.dataAbertura) }}</q-item-label>
                       </q-item-section>
                     </q-item>
@@ -336,7 +329,7 @@
                     </q-item>
 
                     <q-item>
-                      <q-item-section>
+                      <q-item-section style="margin-top: 20px;">
                         <q-item-label caption>SLA Restante</q-item-label>
                         <div class="flex items-center">
                           <q-icon
@@ -361,15 +354,38 @@
                   </q-list>
                 </div>
               </div>
-
-              <!-- Descrição -->
-              <q-separator class="q-my-md" />
-              <div>
+ <!-- Timeline -->
+              <div v-if="chamadoDetalhe?.timeline && chamadoDetalhe.timeline.length > 0" class="q-mt-md" style="padding: 1em">
                 <div class="text-subtitle2 text-weight-medium q-mb-sm">
-                  <q-icon name="description" size="18px" color="primary" class="q-mr-xs" />
-                  Descrição do Problema
+                  <q-icon name="timeline" size="18px" color="primary" class="q-mr-xs" />
+                  Histórico de Atualizações
                 </div>
-                <div class="text-body2 text-grey-8" v-html="chamadoDetalhe.descricao"></div>
+                <div class="timeline-container">
+                  <div v-for="(evento, idx) in chamadoDetalhe.timeline" :key="idx" class="timeline-item">
+                    <div class="timeline-icon" :class="`bg-${evento.cor || 'primary'}`">
+                      <q-icon :name="evento.icone" size="14px" color="white" />
+                    </div>
+                    <div class="timeline-content">
+                      <div class="flex justify-between items-center">
+                        <span class="text-weight-medium">{{ evento.titulo }}</span>
+                        <span class="text-caption text-grey-6">{{ formatarDataRelativa(evento.data) }}</span>
+                      </div>
+                      <div class="text-caption">{{ evento.descricao }}</div>
+                      <div class="text-caption text-grey-6" v-if="evento.autor">por {{ evento.autor }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Descrição -->
+              <q-separator class="q-my-md" style="margin-top: -10px;"/>
+              <div class="text-subtitle2 text-weight-medium q-mb-sm text-grey-8">
+                  Descrição:
+                </div>
+              <div>
+
+                <div class="text-body2 text-grey-20" v-html="chamadoDetalhe.descricao" style="    padding: 1em;
+    background: #f7f7f7;
+    border-radius: 20px;"></div>
               </div>
 
               <!-- Anexos -->
@@ -395,28 +411,7 @@
                 </div>
               </div>
 
-              <!-- Timeline -->
-              <div v-if="chamadoDetalhe?.timeline && chamadoDetalhe.timeline.length > 0" class="q-mt-md">
-                <div class="text-subtitle2 text-weight-medium q-mb-sm">
-                  <q-icon name="timeline" size="18px" color="primary" class="q-mr-xs" />
-                  Histórico de Atualizações
-                </div>
-                <div class="timeline-container">
-                  <div v-for="(evento, idx) in chamadoDetalhe.timeline" :key="idx" class="timeline-item">
-                    <div class="timeline-icon" :class="`bg-${evento.cor || 'primary'}`">
-                      <q-icon :name="evento.icone" size="14px" color="white" />
-                    </div>
-                    <div class="timeline-content">
-                      <div class="flex justify-between items-center">
-                        <span class="text-weight-medium">{{ evento.titulo }}</span>
-                        <span class="text-caption text-grey-6">{{ formatarDataRelativa(evento.data) }}</span>
-                      </div>
-                      <div class="text-caption">{{ evento.descricao }}</div>
-                      <div class="text-caption text-grey-6" v-if="evento.autor">por {{ evento.autor }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
             </q-card-section>
 
             <q-separator />
@@ -495,14 +490,36 @@ export default {
 
     // Colunas da tabela
     const columns = ref([
-      { name: 'id', label: 'ID', field: 'id', align: 'left', sortable: true, style: 'width: 120px' },
+      { name: 'id', label: 'ID', field: 'id', align: 'left', sortable: true, style: 'width: 10px' },
       { name: 'titulo', label: 'Título', field: 'titulo', align: 'left', sortable: true, style: 'min-width: 250px' },
       { name: 'quemAbre', label: 'Quem Abriu', field: 'quemAbre', align: 'left', sortable: true, style: 'width: 150px' },
-      { name: 'dataAbertura', label: 'Data', field: 'dataAbertura', align: 'left', sortable: true, style: 'width: 120px' },
-      { name: 'dataAtualizacao', label: 'Última Mov.', field: 'dataAtualizacao', align: 'left', sortable: true, style: 'width: 120px' },
+      {
+  name: 'dataAbertura',
+  label: 'Data',
+  field: row => formatarData(row.dataAbertura),
+  sortable: true,
+  },
+
+
+{
+  name: 'tipo',
+  label: 'Tipo',
+  field: row =>
+    row.tipo
+      ? row.tipo.charAt(0).toUpperCase() + row.tipo.slice(1)
+      : '',
+  sortable: true,
+  style: 'width: 230px'
+},
       { name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true, style: 'width: 120px' },
       { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true, style: 'width: 110px' },
-      { name: 'slaRestante', label: 'SLA Restante', field: 'slaRestante', align: 'left', sortable: true, style: 'width: 120px' },
+      {
+  name: 'sla_resposta',
+  label: 'SLA (Resposta)',
+  field: 'sla_resposta',
+  sortable: true
+},
+      { name: 'slaRestante', label: 'SLA (Resolução)', field: 'slaRestante', align: 'left', sortable: true, style: 'width: 0px' },
       { name: 'acoes', label: 'Ações', field: 'acoes', align: 'center', style: 'width: 100px' }
     ])
 
@@ -571,14 +588,17 @@ const carregarChamados = async () => {
         quemAbre: chamado.nome_usuario || '',
 
         departamento: chamado.departamento_usuario || '',
+        sla_resposta: chamado.sla_resposta || '',
 
-        dataAbertura: chamado.created_at
-          ? new Date(chamado.created_at)
-          : new Date(),
+        dataAbertura: chamado.data_criacao
+  ? new Date(chamado.data_criacao)
+  : null,
 
-        dataAtualizacao: chamado.updated_at
-          ? new Date(chamado.updated_at)
-          : new Date(),
+dataAtualizacao: chamado.data_atualizacao
+  ? new Date(chamado.data_atualizacao)
+  : null,
+
+tipo: chamado.tipo || '',
 
         anexos: chamado.anexos
           ? JSON.parse(chamado.anexos).length
@@ -596,9 +616,9 @@ const carregarChamados = async () => {
           {
             titulo: 'Chamado aberto',
             descricao: 'Chamado registrado no sistema',
-            data: chamado.created_at
-              ? new Date(chamado.created_at)
-              : new Date(),
+            data: chamado.data_criacao
+  ? new Date(chamado.data_criacao)
+  : null,
             icone: 'add_circle',
             autor: chamado.nome_usuario || 'Sistema',
             cor: 'positive'

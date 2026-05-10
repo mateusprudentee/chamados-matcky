@@ -227,7 +227,7 @@ const goToForgotPassword = () => {
 
       loading.value = true
       try {
-        const response = await fetch('https://boom-matcky.onrender.com/api/auth/login', {
+        const response = await fetch('https://chamados-backend-4efw.onrender.com/api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

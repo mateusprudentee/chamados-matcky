@@ -167,8 +167,8 @@ app.use((req, res, next) => {
 // ROTAS
 // ==========================================
 
-app.use('', authRoutes);
-app.use('', membersRoutes);
+app.use('/api', authRoutes);
+app.use('/api', membersRoutes);
 app.use('/api', catalogoRoutes);
 app.use('/api', chamadoRoutes);
 

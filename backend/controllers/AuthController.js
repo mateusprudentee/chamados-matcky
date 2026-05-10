@@ -107,7 +107,7 @@ class AuthController {
             email,
             hashedPassword,
             username,
-            `https://cravatar.eu/helmavatar/${username}/190.png`,
+            `https://i.imgur.com/kKIqX11.png`,
             verificationToken,
             verificationExpires
           ]

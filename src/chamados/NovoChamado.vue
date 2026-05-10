@@ -253,7 +253,7 @@ export default {
     // =========================
     // ESTADOS
     // =========================
-    const loadingInicial = ref(true)
+    const loadingInicial = ref(false)
     const loadingSubcategorias = ref(false)
     const loadingEnvio = ref(false)
     const recarregando = ref(false)
@@ -543,7 +543,38 @@ export default {
         loadingUsuario.value = false
       }
     }
+const carregarCacheInicial = () => {
 
+  const cacheTipos =
+    localStorage.getItem('cache_tipos')
+
+  const cacheCategorias =
+    localStorage.getItem('cache_categorias')
+
+  const cachePrioridades =
+    localStorage.getItem('cache_prioridades')
+
+  if (cacheTipos) {
+    tiposChamado.value = JSON.parse(cacheTipos)
+  }
+
+  if (cacheCategorias) {
+    categorias.value = JSON.parse(cacheCategorias)
+  }
+
+  if (cachePrioridades) {
+    prioridades.value = JSON.parse(cachePrioridades)
+  }
+
+  // só mostra skeleton se NÃO tiver cache
+  if (
+    !cacheTipos ||
+    !cacheCategorias ||
+    !cachePrioridades
+  ) {
+    loadingInicial.value = true
+  }
+}
     // =========================
     // CARREGAR DADOS INICIAIS
     // =========================
@@ -558,7 +589,7 @@ export default {
                 'Timeout na conexão com o servidor'
               )
             )
-          }, 30000)
+          }, 1000)
         })
 
         const requestPromise = Promise.all([
@@ -577,14 +608,26 @@ export default {
         ])
 
         if (tiposRes.data.success) {
+          localStorage.setItem(
+  'cache_tipos',
+  JSON.stringify(tiposRes.data.data)
+)
           tiposChamado.value = tiposRes.data.data
         }
 
         if (catRes.data.success) {
+          localStorage.setItem(
+  'cache_categorias',
+  JSON.stringify(catRes.data.data)
+)
           categorias.value = catRes.data.data
         }
 
         if (priorRes.data.success) {
+          localStorage.setItem(
+  'cache_prioridades',
+  JSON.stringify(priorRes.data.data)
+)
           prioridades.value = priorRes.data.data
         }
 
@@ -811,11 +854,16 @@ export default {
     // =========================
     // MOUNTED
     // =========================
-    onMounted(async () => {
-      await carregarUsuarioLogado()
-      await carregarDadosIniciais()
-    })
+   onMounted(async () => {
 
+  // mostra dados instantaneamente
+  carregarCacheInicial()
+
+  // atualiza silenciosamente
+  await carregarUsuarioLogado()
+  await carregarDadosIniciais()
+
+})
     // =========================
     // RETURN
     // =========================

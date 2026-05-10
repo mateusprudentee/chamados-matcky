@@ -20,6 +20,20 @@ const routes = [
     ]
   },
 
+   {
+    path: '/register',
+    component: () => import('layouts/AuthLayout.vue'),
+    meta: { public: true },
+    children: [
+      {
+        path: '',
+        name: 'register',
+        component: () => import('pages/Register.vue'),
+        meta: { public: true, requiresGuest: true, pageTitle: 'Login' }
+      }
+    ]
+  },
+
 
 
   // Rotas protegidas (exigem captcha e autenticação)
@@ -33,11 +47,7 @@ const routes = [
         component: () => import('pages/HomePage.vue'),
         meta: { pageTitle: 'Página Inicial' }
       },
-      {
-        path: 'dashboard',
-        component: () => import('pages/DashboardPage.vue'),
-        meta: { pageTitle: 'Dashboard' }
-      },
+
       {
         path: 'novo',
         component: () => import('../chamados/NovoChamado.vue'),

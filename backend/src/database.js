@@ -4,14 +4,13 @@ import nodemailer from 'nodemailer';
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'sua_senha',
+  password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'chamados_db',
+
   waitForConnections: true,
   connectionLimit: 2,
   queueLimit: 10,
-  acquireTimeout: 30000,
-  timeout: 60000,
-  reconnect: true,
+
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000
 };

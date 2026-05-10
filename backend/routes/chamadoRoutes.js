@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import ChamadoController from '../controllers/chamadoController.js';
+
 const router = express.Router();
-const ChamadoController = require('../controllers/chamadoController');
 
 // Rota POST - Criar novo chamado
 router.post('/chamados', ChamadoController.criar);
@@ -17,4 +18,4 @@ router.put('/chamados/:id', ChamadoController.atualizar);
 // Rota GET - Buscar chamados por usuário
 router.get('/chamados/usuario/:email', ChamadoController.buscarPorUsuario);
 
-module.exports = router;
+export default router;

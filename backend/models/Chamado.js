@@ -1,5 +1,4 @@
-const pool = require('../src/database.js');
-
+import pool from '../src/database.js';
 class ChamadoModel {
   // Criar novo chamado
   static async criar(chamadoData) {
@@ -168,4 +167,4 @@ class ChamadoModel {
   }
 }
 
-module.exports = ChamadoModel;
+export default ChamadoModel;

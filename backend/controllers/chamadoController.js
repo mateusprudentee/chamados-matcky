@@ -1,4 +1,4 @@
-const ChamadoModel = require('../models/Chamado.js');
+import ChamadoModel from '../models/Chamado.js';
 
 class ChamadoController {
   // Criar novo chamado
@@ -162,4 +162,4 @@ class ChamadoController {
   }
 }
 
-module.exports = ChamadoController;
+export default ChamadoController;

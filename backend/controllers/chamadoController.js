@@ -1,5 +1,4 @@
 import Chamado from '../models/Chamado.js';
-
 class ChamadoController {
   static async create(req, res) {
     try {

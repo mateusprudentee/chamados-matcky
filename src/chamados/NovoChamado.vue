@@ -250,18 +250,26 @@ export default {
   setup() {
     const $q = useQuasar()
 
-    // Estados
+    // =========================
+    // ESTADOS
+    // =========================
     const loadingInicial = ref(true)
     const loadingSubcategorias = ref(false)
     const loadingEnvio = ref(false)
     const recarregando = ref(false)
     const erroCarregamento = ref('')
 
+    // LOADING USUÁRIO
+    const loadingUsuario = ref(false)
+
     const tiposChamado = ref([])
     const categorias = ref([])
     const subcategorias = ref([])
     const prioridades = ref([])
 
+    // =========================
+    // FORM
+    // =========================
     const form = ref({
       tipo: '',
       categoria: '',
@@ -271,41 +279,286 @@ export default {
       descricao: ''
     })
 
+    // =========================
+    // USUÁRIO LOGADO
+    // =========================
     const usuarioLogado = ref({
-      nome: 'João Silva',
-      email: 'joao.silva@empresa.com.br',
-      departamento: 'Financeiro',
-      iniciais: 'JS'
+      nome: '',
+      email: '',
+      departamento: '',
+      iniciais: ''
     })
 
-    // Computed
+    // =========================
+    // COMPUTEDS
+    // =========================
     const subcategoriasFiltradas = computed(() => {
       if (!form.value.categoria) return []
-      return subcategorias.value.filter(s => s.categoria_value === form.value.categoria)
+
+      return subcategorias.value.filter(
+        s => s.categoria_value === form.value.categoria
+      )
     })
 
     const formValido = computed(() => {
-      return form.value.tipo &&
-             form.value.categoria &&
-             form.value.subcategoria &&
-             form.value.titulo &&
-             form.value.prioridade &&
-             form.value.descricao
+      return (
+        form.value.tipo &&
+        form.value.categoria &&
+        form.value.subcategoria &&
+        form.value.titulo &&
+        form.value.prioridade &&
+        form.value.descricao
+      )
     })
 
-    // Methods
+    // =========================
+    // HELPERS
+    // =========================
     const getPrioridadeColor = (prioridade) => {
-      const colors = { 'critica': 'red', 'alta': 'orange', 'media': 'blue', 'baixa': 'green' }
+      const colors = {
+        critica: 'red',
+        alta: 'orange',
+        media: 'blue',
+        baixa: 'green'
+      }
+
       return colors[prioridade] || 'grey'
     }
 
-    // Carregar dados iniciais da API com timeout e retry
+    const gerarIniciais = (nome) => {
+      if (!nome) return ''
+
+      return nome
+        .split(' ')
+        .map(parte => parte[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase()
+    }
+
+    // =========================
+    // CARREGAR USUÁRIO LOGADO
+    // =========================
+    const carregarUsuarioLogado = async () => {
+      loadingUsuario.value = true
+
+      try {
+        // CACHE
+        const cachedUser = localStorage.getItem('userData')
+        const token =
+          localStorage.getItem('authToken') ||
+          localStorage.getItem('token')
+
+        console.log('Token encontrado:', !!token)
+        console.log('Usuário cacheado:', cachedUser)
+
+        // =========================
+        // CARREGA DO CACHE PRIMEIRO
+        // =========================
+        if (cachedUser) {
+          const user = JSON.parse(cachedUser)
+
+          usuarioLogado.value = {
+            nome:
+              user.nome ||
+              user.username ||
+              user.name ||
+              'Usuário',
+
+            email:
+              user.email ||
+              '',
+
+            departamento:
+              user.departamento ||
+              user.department ||
+              'Não informado',
+
+            iniciais: gerarIniciais(
+              user.nome ||
+              user.username ||
+              user.name
+            )
+          }
+
+          console.log(
+            'Usuário carregado do cache:',
+            usuarioLogado.value
+          )
+        }
+
+        // =========================
+        // SEM TOKEN
+        // =========================
+        if (!token) {
+          console.warn('Token não encontrado')
+
+          usuarioLogado.value = {
+            nome: 'Visitante',
+            email: '',
+            departamento: '',
+            iniciais: 'VT'
+          }
+
+          return
+        }
+
+        // =========================
+        // API AUTH /ME
+        // =========================
+        let response = await fetch(
+          'https://chamados-backend-4efw.onrender.com/api/auth/me',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+
+        // =========================
+        // ROTA ALTERNATIVA
+        // =========================
+        if (!response.ok) {
+          console.log(
+            'Tentando rota alternativa /api/users/me'
+          )
+
+          response = await fetch(
+            'https://chamados-backend-4efw.onrender.com/api/users/me',
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          )
+        }
+
+        // =========================
+        // SE OK
+        // =========================
+        if (response.ok) {
+          const userData = await response.json()
+
+          console.log(
+            'Dados do usuário recebidos:',
+            userData
+          )
+
+          const user = userData.user || userData
+
+          usuarioLogado.value = {
+            nome:
+              user.nome ||
+              user.username ||
+              user.name ||
+              user.nickname ||
+              'Usuário',
+
+            email:
+              user.email ||
+              '',
+
+            departamento:
+              user.departamento ||
+              user.department ||
+              user.setor ||
+              'Não informado',
+
+            iniciais: gerarIniciais(
+              user.nome ||
+              user.username ||
+              user.name
+            )
+          }
+
+          // Atualiza cache
+          localStorage.setItem(
+            'userData',
+            JSON.stringify(user)
+          )
+
+          console.log(
+            'Usuário atualizado:',
+            usuarioLogado.value
+          )
+        }
+
+        // =========================
+        // TOKEN INVÁLIDO
+        // =========================
+        else if (response.status === 401) {
+          console.warn('Token inválido')
+
+          usuarioLogado.value = {
+            nome: 'Visitante',
+            email: '',
+            departamento: '',
+            iniciais: 'VT'
+          }
+
+          localStorage.removeItem('authToken')
+          localStorage.removeItem('token')
+          localStorage.removeItem('userData')
+        }
+
+        // =========================
+        // OUTROS ERROS
+        // =========================
+        else {
+          console.error(
+            'Erro ao carregar usuário:',
+            response.status
+          )
+
+          if (!cachedUser) {
+            usuarioLogado.value = {
+              nome: 'Usuário',
+              email: '',
+              departamento: '',
+              iniciais: 'US'
+            }
+          }
+        }
+      } catch (error) {
+        console.error(
+          'Erro ao carregar usuário logado:',
+          error
+        )
+
+        const cachedUser = localStorage.getItem('userData')
+
+        if (!cachedUser) {
+          usuarioLogado.value = {
+            nome: 'Usuário',
+            email: '',
+            departamento: '',
+            iniciais: 'US'
+          }
+        }
+      } finally {
+        loadingUsuario.value = false
+      }
+    }
+
+    // =========================
+    // CARREGAR DADOS INICIAIS
+    // =========================
     const carregarDadosIniciais = async (tentativa = 1) => {
       const maxTentativas = 3
 
       try {
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout na conexão com o servidor')), 30000)
+          setTimeout(() => {
+            reject(
+              new Error(
+                'Timeout na conexão com o servidor'
+              )
+            )
+          }, 30000)
         })
 
         const requestPromise = Promise.all([
@@ -314,50 +567,86 @@ export default {
           api.get('/prioridades')
         ])
 
-        const [tiposRes, catRes, priorRes] = await Promise.race([requestPromise, timeoutPromise])
+        const [
+          tiposRes,
+          catRes,
+          priorRes
+        ] = await Promise.race([
+          requestPromise,
+          timeoutPromise
+        ])
 
-        if (tiposRes.data.success) tiposChamado.value = tiposRes.data.data
-        if (catRes.data.success) categorias.value = catRes.data.data
-        if (priorRes.data.success) prioridades.value = priorRes.data.data
+        if (tiposRes.data.success) {
+          tiposChamado.value = tiposRes.data.data
+        }
+
+        if (catRes.data.success) {
+          categorias.value = catRes.data.data
+        }
+
+        if (priorRes.data.success) {
+          prioridades.value = priorRes.data.data
+        }
 
         erroCarregamento.value = ''
-
       } catch (error) {
-        console.error(`Erro ao carregar dados iniciais (tentativa ${tentativa}/${maxTentativas}):`, error)
+        console.error(
+          `Erro ao carregar dados (${tentativa}/3):`,
+          error
+        )
 
         if (tentativa < maxTentativas) {
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          return carregarDadosIniciais(tentativa + 1)
+          await new Promise(resolve =>
+            setTimeout(resolve, 1000)
+          )
+
+          return carregarDadosIniciais(
+            tentativa + 1
+          )
         }
 
-        let mensagemErro = ''
-        if (error.message === 'Timeout na conexão com o servidor') {
-          mensagemErro = 'Servidor demorou muito para responder. Verifique sua conexão.'
-        } else if (error.code === 'ECONNABORTED') {
-          mensagemErro = 'Conexão com o servidor expirou. Tente novamente.'
-        } else if (error.message === 'Network Error') {
-          mensagemErro = 'Erro de rede. Verifique sua conexão com a internet.'
+        if (
+          error.message ===
+          'Timeout na conexão com o servidor'
+        ) {
+          erroCarregamento.value =
+            'Servidor demorou muito para responder.'
+        } else if (
+          error.code === 'ECONNABORTED'
+        ) {
+          erroCarregamento.value =
+            'Conexão expirada.'
+        } else if (
+          error.message === 'Network Error'
+        ) {
+          erroCarregamento.value =
+            'Erro de rede.'
         } else {
-          mensagemErro = 'Não foi possível carregar os dados do servidor.'
+          erroCarregamento.value =
+            'Erro ao carregar dados.'
         }
-
-        erroCarregamento.value = mensagemErro
-
       } finally {
         loadingInicial.value = false
       }
     }
 
-    // Recarregar dados
+    // =========================
+    // RECARREGAR
+    // =========================
     const recarregarDados = async () => {
       recarregando.value = true
+
       erroCarregamento.value = ''
       loadingInicial.value = true
+
       await carregarDadosIniciais()
+
       recarregando.value = false
     }
 
-    // Carregar subcategorias quando categoria mudar
+    // =========================
+    // SUBCATEGORIAS
+    // =========================
     const carregarSubcategorias = async () => {
       if (!form.value.categoria) {
         subcategorias.value = []
@@ -366,90 +655,131 @@ export default {
       }
 
       loadingSubcategorias.value = true
-      try {
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout ao carregar subcategorias')), 15000)
-        })
 
-        const requestPromise = api.get(`/subcategorias?categoria=${form.value.categoria}`)
-        const response = await Promise.race([requestPromise, timeoutPromise])
+      try {
+        const response = await api.get(
+          `/subcategorias?categoria=${form.value.categoria}`
+        )
 
         if (response.data.success) {
-          subcategorias.value = response.data.data
+          subcategorias.value =
+            response.data.data
+
           form.value.subcategoria = ''
         }
       } catch (error) {
-        console.error('Erro ao carregar subcategorias:', error)
+        console.error(
+          'Erro ao carregar subcategorias:',
+          error
+        )
+
         $q.notify({
           color: 'negative',
-          message: 'Erro ao carregar subcategorias. Tente selecionar outra categoria.',
+          message:
+            'Erro ao carregar subcategorias',
           icon: 'error',
-          position: 'top-right',
-          timeout: 4000
+          position: 'top-right'
         })
       } finally {
         loadingSubcategorias.value = false
       }
     }
 
-    // Abrir chamado
+    // =========================
+    // ABRIR CHAMADO
+    // =========================
     const abrirChamado = async () => {
       if (!formValido.value) {
         $q.notify({
           color: 'warning',
-          message: 'Preencha todos os campos obrigatórios',
+          message:
+            'Preencha todos os campos obrigatórios',
           icon: 'warning',
           position: 'top-right'
         })
+
         return
       }
 
       $q.dialog({
-        title: 'Confirmar Abertura de Chamado',
-        message: 'Deseja realmente abrir este chamado?',
-        ok: { label: 'Sim, Abrir', color: 'primary' },
-        cancel: { label: 'Cancelar', color: 'grey', flat: true }
+        title: 'Confirmar',
+        message:
+          'Deseja realmente abrir este chamado?',
+        ok: {
+          label: 'Sim',
+          color: 'primary'
+        },
+        cancel: {
+          label: 'Cancelar',
+          flat: true
+        }
       }).onOk(async () => {
         loadingEnvio.value = true
 
         try {
-          const tipoSelecionado = tiposChamado.value.find(t => t.value === form.value.tipo)
-          const prioridadeSelecionada = prioridades.value.find(p => p.value === form.value.prioridade)
+          const tipoSelecionado =
+            tiposChamado.value.find(
+              t => t.value === form.value.tipo
+            )
+
+          const prioridadeSelecionada =
+            prioridades.value.find(
+              p =>
+                p.value === form.value.prioridade
+            )
 
           const dadosChamado = {
             tipo: form.value.tipo,
-            icone_tipo: tipoSelecionado?.icone || '',
+            icone_tipo:
+              tipoSelecionado?.icone || '',
+
             categoria: form.value.categoria,
-            subcategoria: form.value.subcategoria,
+            subcategoria:
+              form.value.subcategoria,
+
             titulo: form.value.titulo,
-            prioridade: form.value.prioridade,
+            prioridade:
+              form.value.prioridade,
+
             descricao: form.value.descricao,
-            nome_usuario: usuarioLogado.value.nome,
-            email_usuario: usuarioLogado.value.email,
-            departamento_usuario: usuarioLogado.value.departamento,
-            sla_resposta: prioridadeSelecionada?.sla_resposta || '',
-            sla_resolucao: prioridadeSelecionada?.sla_resolucao || ''
+
+            nome_usuario:
+              usuarioLogado.value.nome,
+
+            email_usuario:
+              usuarioLogado.value.email,
+
+            departamento_usuario:
+              usuarioLogado.value.departamento,
+
+            sla_resposta:
+              prioridadeSelecionada?.sla_resposta ||
+              '',
+
+            sla_resolucao:
+              prioridadeSelecionada?.sla_resolucao ||
+              ''
           }
 
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout ao enviar chamado')), 30000)
-          })
-
-          const requestPromise = api.post('/chamados', dadosChamado)
-          const response = await Promise.race([requestPromise, timeoutPromise])
+          const response = await api.post(
+            '/chamados',
+            dadosChamado
+          )
 
           if (response.data.success) {
-            const numeroChamado = response.data.chamado.id
+            const numeroChamado =
+              response.data.data.id
 
             $q.notify({
               color: 'positive',
-              message: `Chamado #${numeroChamado} aberto com sucesso!`,
+              message:
+                `Chamado #${numeroChamado} aberto com sucesso!`,
               icon: 'check',
               position: 'top-right',
               timeout: 5000
             })
 
-            // Limpar formulário
+            // RESET FORM
             form.value = {
               tipo: '',
               categoria: '',
@@ -460,24 +790,17 @@ export default {
             }
           }
         } catch (error) {
-          console.error('Erro ao abrir chamado:', error)
-
-          let mensagemErro = 'Erro ao abrir chamado. Tente novamente.'
-
-          if (error.message === 'Timeout ao enviar chamado') {
-            mensagemErro = 'Tempo limite excedido. O servidor pode estar lento.'
-          } else if (error.response) {
-            mensagemErro = error.response.data.message || mensagemErro
-          } else if (error.request) {
-            mensagemErro = 'Erro de conexão com o servidor. Verifique sua internet.'
-          }
+          console.error(
+            'Erro ao abrir chamado:',
+            error
+          )
 
           $q.notify({
             color: 'negative',
-            message: mensagemErro,
+            message:
+              'Erro ao abrir chamado.',
             icon: 'error',
-            position: 'top-right',
-            timeout: 5000
+            position: 'top-right'
           })
         } finally {
           loadingEnvio.value = false
@@ -485,33 +808,46 @@ export default {
       })
     }
 
-    onMounted(() => {
-      carregarDadosIniciais()
+    // =========================
+    // MOUNTED
+    // =========================
+    onMounted(async () => {
+      await carregarUsuarioLogado()
+      await carregarDadosIniciais()
     })
 
+    // =========================
+    // RETURN
+    // =========================
     return {
       form,
       usuarioLogado,
+
       tiposChamado,
       categorias,
       subcategorias,
       prioridades,
+
       subcategoriasFiltradas,
       formValido,
+
       loadingInicial,
       loadingSubcategorias,
       loadingEnvio,
+      loadingUsuario,
       recarregando,
       erroCarregamento,
+
       getPrioridadeColor,
+
       carregarSubcategorias,
       abrirChamado,
-      recarregarDados
+      recarregarDados,
+      carregarUsuarioLogado
     }
   }
 }
 </script>
-
 
 
 <style scoped>

@@ -229,7 +229,7 @@
 
                 <!-- Nenhum resultado -->
                 <template v-slot:no-data>
-                  <div class="text-center q-pa-xl">
+                  <div class="text-center justify-center q-pa-xl" style="margin: 0 auto">
                     <q-icon name="inbox" size="48px" color="grey-4" />
                     <div class="text-subtitle1 text-grey-6 q-mt-md">
                       Nenhum chamado encontrado
@@ -422,14 +422,7 @@
             <q-separator />
 
             <q-card-actions align="right" class="q-pa-md">
-              <q-btn
-                label="Adicionar Comentário"
-                icon="chat"
-                outline
-                color="primary"
-                @click="adicionarComentario"
-                v-close-popup
-              />
+
               <q-btn
                 v-if="chamadoDetalhe?.status === 'Resolvido' || chamadoDetalhe?.status === 'Fechado'"
                 label="Reabrir Chamado"
@@ -452,36 +445,26 @@
           </q-card>
         </q-dialog>
 
-        <!-- Modal de Comentário -->
-        <q-dialog v-model="modalComentario">
-          <q-card style="min-width: 500px">
-            <q-card-section class="bg-primary text-white">
-              <div class="text-h6">Adicionar Comentário</div>
-            </q-card-section>
 
-            <q-card-section>
-              <q-editor
-                v-model="novoComentario"
-                :toolbar="[['bold', 'italic', 'underline'], ['ordered', 'unordered']]"
-                min-height="150px"
-                placeholder="Digite seu comentário aqui..."
-              />
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" v-close-popup />
-              <q-btn color="primary" label="Enviar" @click="enviarComentario" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
       </q-page>
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import axios from 'axios'
+
+const API_URL = 'https://chamados-backend-4efw.onrender.com/api'
+
+const api = axios.create({
+  baseURL: API_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
 
 export default {
   name: 'ChamadosAbertos',
@@ -501,9 +484,6 @@ export default {
     const selectedRows = ref([])
     const dialogVisible = ref(false)
     const chamadoDetalhe = ref(null)
-    const modalComentario = ref(false)
-    const novoComentario = ref('')
-    const chamadoParaComentario = ref(null)
 
     // Paginação da tabela
     const pagination = ref({
@@ -526,20 +506,19 @@ export default {
       { name: 'acoes', label: 'Ações', field: 'acoes', align: 'center', style: 'width: 100px' }
     ])
 
-    // Opções para filtros
     const statusOptions = ref([
-      { label: 'Aberto', value: 'Aberto' },
-      { label: 'Em Andamento', value: 'Em Andamento' },
-      { label: 'Resolvido', value: 'Resolvido' },
-      { label: 'Fechado', value: 'Fechado' }
-    ])
+  { label: 'Aberto', value: 'aberto' },
+  { label: 'Em andamento', value: 'em_andamento' },
+  { label: 'Resolvido', value: 'resolvido' },
+  { label: 'Fechado', value: 'fechado' }
+])
 
-    const prioridadeOptions = ref([
-      { label: 'Crítica', value: 'Crítica' },
-      { label: 'Alta', value: 'Alta' },
-      { label: 'Média', value: 'Média' },
-      { label: 'Baixa', value: 'Baixa' }
-    ])
+   const prioridadeOptions = ref([
+  { label: 'Crítica', value: 'critica' },
+  { label: 'Alta', value: 'alta' },
+  { label: 'Média', value: 'media' },
+  { label: 'Baixa', value: 'baixa' }
+])
 
     const categoriaOptions = ref([
       { label: 'Hardware', value: 'Hardware' },
@@ -550,135 +529,102 @@ export default {
       { label: 'Acesso/Senha', value: 'Acesso/Senha' }
     ])
 
-    // Dados mockados dos chamados
-    const chamados = ref([
-      {
-        id: 'CH-2026-001',
-        titulo: 'ERP Financeiro está lento e travando com frequência',
-        descricaoResumida: 'Sistema demora mais de 2 minutos para carregar telas...',
-        descricao: '<p>O sistema ERP está extremamente lento desde ontem. As telas demoram mais de 2 minutos para carregar, e estamos tendo dificuldades para fechar o fechamento mensal.</p><p><strong>Impacto:</strong> Time financeiro paralisado, não conseguimos concluir as atividades do dia.</p>',
-        prioridade: 'Crítica',
-        status: 'Em Andamento',
-        categoria: 'Software',
-        subcategoria: 'Erro no sistema',
-        solicitante: 'João Silva',
-        quemAbre: 'João Silva',
-        departamento: 'Financeiro',
-        dataAbertura: new Date(2026, 4, 8, 9, 30),
-        dataAtualizacao: new Date(2026, 4, 9, 10, 15),
-        anexos: 3,
-        anexosLista: [
-          { nome: 'erro_erp.png', icone: 'image', url: '#' },
-          { nome: 'logs_sistema.log', icone: 'description', url: '#' },
-          { nome: 'print_tela_lento.png', icone: 'image', url: '#' }
-        ],
-        slaRestante: '1h 30min',
-        slaProgresso: 0.75,
-        timeline: [
-          { titulo: 'Chamado aberto', descricao: 'Chamado registrado no sistema', data: new Date(2026, 4, 8, 9, 30), icone: 'add_circle', autor: 'João Silva', cor: 'positive' },
-          { titulo: 'Atribuído ao time de infra', descricao: 'Chamado atribuído ao analista Carlos Mendes', data: new Date(2026, 4, 8, 10, 0), icone: 'assignment_ind', autor: 'Sistema', cor: 'info' },
-          { titulo: 'Em análise', descricao: 'Estamos verificando os logs e monitorando o servidor', data: new Date(2026, 4, 9, 10, 15), icone: 'analytics', autor: 'Carlos Mendes', cor: 'warning' }
-        ]
-      },
-      {
-        id: 'CH-2026-002',
-        titulo: 'Impressora do setor comercial não imprime',
-        descricaoResumida: 'Impressora HP LaserJet apresenta erro de atolamento...',
-        descricao: '<p>A impressora do setor comercial parou de funcionar hoje pela manhã. O painel indica erro de atolamento, mas após inspeção não há papel preso.</p>',
-        prioridade: 'Alta',
-        status: 'Aberto',
-        categoria: 'Impressora',
-        subcategoria: 'Atolamento de papel',
-        solicitante: 'Maria Souza',
-        quemAbre: 'Maria Souza',
-        departamento: 'Comercial',
-        dataAbertura: new Date(2026, 4, 9, 8, 45),
-        dataAtualizacao: new Date(2026, 4, 9, 8, 45),
-        anexos: 2,
-        anexosLista: [
-          { nome: 'erro_impressora.jpg', icone: 'image', url: '#' },
-          { nome: 'video_erro.mp4', icone: 'theaters', url: '#' }
-        ],
-        slaRestante: '2h 15min',
-        slaProgresso: 0.45,
-        timeline: [
-          { titulo: 'Chamado aberto', descricao: 'Chamado registrado no sistema', data: new Date(2026, 4, 9, 8, 45), icone: 'add_circle', autor: 'Maria Souza', cor: 'positive' }
-        ]
-      },
-      {
-        id: 'CH-2026-003',
-        titulo: 'Acesso ao sistema de RH bloqueado',
-        descricaoResumida: 'Usuário com perfil de RH perdeu acesso ao módulo...',
-        descricao: '<p>Após a atualização do sistema na última sexta, perdi acesso ao módulo de folha de pagamento. Já tentei reiniciar o sistema e limpar cache.</p>',
-        prioridade: 'Média',
-        status: 'Resolvido',
-        categoria: 'Acesso/Senha',
-        subcategoria: 'Troca de senha',
-        solicitante: 'Ana Paula',
-        quemAbre: 'Ana Paula',
-        departamento: 'Recursos Humanos',
-        dataAbertura: new Date(2026, 4, 5, 14, 20),
-        dataAtualizacao: new Date(2026, 4, 8, 16, 0),
-        anexos: 1,
-        anexosLista: [
-          { nome: 'acesso_bloqueado.png', icone: 'image', url: '#' }
-        ],
-        slaRestante: 'Resolvido',
-        slaProgresso: 1,
-        timeline: [
-          { titulo: 'Chamado aberto', descricao: 'Chamado registrado no sistema', data: new Date(2026, 4, 5, 14, 20), icone: 'add_circle', autor: 'Ana Paula', cor: 'positive' },
-          { titulo: 'Resolução', descricao: 'Permissões ajustadas no sistema. Usuário consegue acessar normalmente.', data: new Date(2026, 4, 8, 16, 0), icone: 'check_circle', autor: 'TI Support', cor: 'positive' }
-        ]
-      },
-      {
-        id: 'CH-2026-004',
-        titulo: 'VPN não conecta para acesso remoto',
-        descricaoResumida: 'Funcionário em home office não consegue acessar VPN...',
-        descricao: '<p>Estou tentando conectar na VPN para trabalhar remotamente, mas está dando erro de autenticação. Já verifiquei usuário e senha.</p>',
-        prioridade: 'Alta',
-        status: 'Em Andamento',
-        categoria: 'Rede',
-        subcategoria: 'VPN não conecta',
-        solicitante: 'Pedro Santos',
-        quemAbre: 'Pedro Santos',
-        departamento: 'Vendas',
-        dataAbertura: new Date(2026, 4, 9, 11, 0),
-        dataAtualizacao: new Date(2026, 4, 9, 12, 30),
-        anexos: 0,
-        anexosLista: [],
-        slaRestante: '3h 20min',
-        slaProgresso: 0.2,
-        timeline: [
-          { titulo: 'Chamado aberto', descricao: 'Chamado registrado no sistema', data: new Date(2026, 4, 9, 11, 0), icone: 'add_circle', autor: 'Pedro Santos', cor: 'positive' },
-          { titulo: 'Em análise', descricao: 'Verificando configurações de VPN', data: new Date(2026, 4, 9, 12, 30), icone: 'analytics', autor: 'Rede TI', cor: 'warning' }
-        ]
-      },
-      {
-        id: 'CH-2026-005',
-        titulo: 'Monitor do atendimento não liga',
-        descricaoResumida: 'A tela do monitor do posto de atendimento não liga...',
-        descricao: '<p>O monitor da recepção está com a luz de standby acesa mas não inicia. Já testei com outro cabo de força.</p>',
-        prioridade: 'Baixa',
-        status: 'Aberto',
-        categoria: 'Hardware',
-        subcategoria: 'Monitor com defeito',
-        solicitante: 'Carlos André',
-        quemAbre: 'Carlos André',
-        departamento: 'Atendimento',
-        dataAbertura: new Date(2026, 4, 10, 8, 0),
-        dataAtualizacao: new Date(2026, 4, 10, 8, 0),
-        anexos: 1,
-        anexosLista: [
-          { nome: 'monitor_desligado.jpg', icone: 'image', url: '#' }
-        ],
-        slaRestante: '4h 50min',
-        slaProgresso: 0.05,
-        timeline: [
-          { titulo: 'Chamado aberto', descricao: 'Chamado registrado no sistema', data: new Date(2026, 4, 10, 8, 0), icone: 'add_circle', autor: 'Carlos André', cor: 'positive' }
-        ]
-      }
-    ])
+   const chamados = ref([])
+const carregarChamados = async () => {
+  loading.value = true
 
+  try {
+    const response = await api.get('/chamados')
+
+    console.log('API chamados:', response.data)
+
+    if (response.data.success) {
+
+      chamados.value = response.data.data.map(chamado => ({
+        id: chamado.id,
+
+        titulo: chamado.titulo,
+
+        descricaoResumida:
+          chamado.descricao
+            ?.replace(/<[^>]*>/g, '')
+            ?.substring(0, 120) + '...',
+
+        descricao: chamado.descricao || '',
+
+        prioridade:
+          chamado.prioridade
+            ? chamado.prioridade.charAt(0).toUpperCase() +
+              chamado.prioridade.slice(1)
+            : 'Baixa',
+
+        status:
+          chamado.status
+            ? chamado.status.charAt(0).toUpperCase() +
+              chamado.status.slice(1)
+            : 'Aberto',
+
+        categoria: chamado.categoria || '',
+        subcategoria: chamado.subcategoria || '',
+
+        solicitante: chamado.nome_usuario || '',
+        quemAbre: chamado.nome_usuario || '',
+
+        departamento: chamado.departamento_usuario || '',
+
+        dataAbertura: chamado.created_at
+          ? new Date(chamado.created_at)
+          : new Date(),
+
+        dataAtualizacao: chamado.updated_at
+          ? new Date(chamado.updated_at)
+          : new Date(),
+
+        anexos: chamado.anexos
+          ? JSON.parse(chamado.anexos).length
+          : 0,
+
+        anexosLista: chamado.anexos
+          ? JSON.parse(chamado.anexos)
+          : [],
+
+        slaRestante: chamado.sla_resolucao || 'N/A',
+
+        slaProgresso: 0.3,
+
+        timeline: [
+          {
+            titulo: 'Chamado aberto',
+            descricao: 'Chamado registrado no sistema',
+            data: chamado.created_at
+              ? new Date(chamado.created_at)
+              : new Date(),
+            icone: 'add_circle',
+            autor: chamado.nome_usuario || 'Sistema',
+            cor: 'positive'
+          }
+        ]
+      }))
+
+    } else {
+      throw new Error(response.data.message || 'Erro ao carregar chamados')
+    }
+
+  } catch (error) {
+
+    console.error('Erro ao carregar chamados:', error)
+
+    $q.notify({
+      color: 'negative',
+      message: 'Erro ao carregar chamados',
+      icon: 'error',
+      position: 'top-right'
+    })
+
+  } finally {
+    loading.value = false
+  }
+}
     // Estatísticas
     const estatisticas = computed(() => [
       { label: 'Total de Chamados', valor: chamados.value.length, icone: 'chat', cor: 'primary' },
@@ -717,73 +663,115 @@ export default {
       return resultado
     })
 
-    // Função para excluir chamado
-    const excluirChamado = (chamadoOuIds) => {
-      let idsParaExcluir = []
-      let nomesParaNotificacao = []
+ const excluirChamado = async (chamadoOuIds) => {
 
-      if (Array.isArray(chamadoOuIds)) {
-        idsParaExcluir = chamadoOuIds
-        nomesParaNotificacao = idsParaExcluir.map(id => id)
-      } else {
-        idsParaExcluir = [chamadoOuIds.id]
-        nomesParaNotificacao = [chamadoOuIds.id]
-      }
+  try {
 
-      // Filtrar os chamados removendo os selecionados
-      chamados.value = chamados.value.filter(c => !idsParaExcluir.includes(c.id))
+    loading.value = true
 
-      // Limpar seleção
-      selectedRows.value = []
+    let idsParaExcluir = []
 
-      // Fechar dialog se o chamado excluído estiver aberto
-      if (chamadoDetalhe.value && idsParaExcluir.includes(chamadoDetalhe.value.id)) {
-        dialogVisible.value = false
-        chamadoDetalhe.value = null
-      }
-
-      // Notificação
-      if (nomesParaNotificacao.length === 1) {
-        $q.notify({
-          color: 'positive',
-          message: `Chamado ${nomesParaNotificacao[0]} excluído com sucesso!`,
-          icon: 'check',
-          position: 'top-right'
-        })
-      } else {
-        $q.notify({
-          color: 'positive',
-          message: `${nomesParaNotificacao.length} chamados excluídos com sucesso!`,
-          icon: 'check',
-          position: 'top-right'
-        })
-      }
+    if (Array.isArray(chamadoOuIds)) {
+      idsParaExcluir = chamadoOuIds
+    } else {
+      idsParaExcluir = [chamadoOuIds.id]
     }
 
-    const confirmarExclusaoUnica = (chamado) => {
-      $q.dialog({
-        title: 'Confirmar Exclusão',
-        message: `Tem certeza que deseja excluir o chamado #${chamado.id}? Esta ação não poderá ser desfeita.`,
-        ok: { label: 'Sim, Excluir', color: 'negative' },
-        cancel: { label: 'Cancelar', color: 'grey', flat: true }
-      }).onOk(() => {
-        excluirChamado(chamado)
-      })
+    // Excluir todos pela API
+    await Promise.all(
+      idsParaExcluir.map(id =>
+        api.delete(`/chamados/${id}`)
+      )
+    )
+
+    // Atualiza lista local
+    chamados.value = chamados.value.filter(
+      c => !idsParaExcluir.includes(c.id)
+    )
+
+    // Limpa seleção
+    selectedRows.value = []
+
+    // Fecha dialog
+    if (
+      chamadoDetalhe.value &&
+      idsParaExcluir.includes(chamadoDetalhe.value.id)
+    ) {
+      dialogVisible.value = false
+      chamadoDetalhe.value = null
     }
 
-    const confirmarExclusaoMultipla = () => {
-      const ids = selectedRows.value.map(row => row.id)
-      const plural = ids.length > 1 ? 's' : ''
+    $q.notify({
+      color: 'positive',
+      message:
+        idsParaExcluir.length > 1
+          ? `${idsParaExcluir.length} chamados excluídos com sucesso!`
+          : `Chamado #${idsParaExcluir[0]} excluído com sucesso!`,
+      icon: 'check_circle',
+      position: 'top-right'
+    })
 
-      $q.dialog({
-        title: 'Confirmar Exclusão em Massa',
-        message: `Tem certeza que deseja excluir ${ids.length} chamado${plural}? Esta ação não poderá ser desfeita.`,
-        ok: { label: `Sim, Excluir ${ids.length} Chamado${plural}`, color: 'negative' },
-        cancel: { label: 'Cancelar', color: 'grey', flat: true }
-      }).onOk(() => {
-        excluirChamado(ids)
-      })
-    }
+  } catch (error) {
+
+    console.error('Erro ao excluir chamado:', error)
+
+    $q.notify({
+      color: 'negative',
+      message: 'Erro ao excluir chamado',
+      icon: 'error',
+      position: 'top-right'
+    })
+
+  } finally {
+
+    loading.value = false
+
+  }
+}
+
+   const confirmarExclusaoUnica = (chamado) => {
+
+  $q.dialog({
+    title: 'Excluir Chamado',
+    message: `Deseja realmente excluir o chamado #${chamado.id}?`,
+    ok: {
+      label: 'Excluir',
+      color: 'negative'
+    },
+    cancel: {
+      label: 'Cancelar',
+      flat: true
+    },
+    persistent: true
+  }).onOk(async () => {
+
+    await excluirChamado(chamado)
+
+  })
+}
+
+   const confirmarExclusaoMultipla = () => {
+
+  const ids = selectedRows.value.map(row => row.id)
+
+  $q.dialog({
+    title: 'Excluir Chamados',
+    message: `Deseja realmente excluir ${ids.length} chamado(s)?`,
+    ok: {
+      label: 'Excluir',
+      color: 'negative'
+    },
+    cancel: {
+      label: 'Cancelar',
+      flat: true
+    },
+    persistent: true
+  }).onOk(async () => {
+
+    await excluirChamado(ids)
+
+  })
+}
 
     const limparSelecao = () => {
       selectedRows.value = []
@@ -814,20 +802,47 @@ export default {
       return 'agora mesmo'
     }
 
-    const getPrioridadeIcone = (prioridade) => {
-      const icones = { 'Crítica': 'error', 'Alta': 'warning', 'Média': 'info', 'Baixa': 'arrow_downward' }
-      return icones[prioridade] || 'flag'
-    }
+   const getPrioridadeIcone = (prioridade) => {
+
+  const p = prioridade?.toLowerCase()
+
+  const icones = {
+    critica: 'error',
+    alta: 'warning',
+    media: 'info',
+    baixa: 'arrow_downward'
+  }
+
+  return icones[p] || 'flag'
+}
 
     const getPrioridadeCor = (prioridade) => {
-      const cores = { 'Crítica': 'red', 'Alta': 'orange', 'Média': 'blue', 'Baixa': 'green' }
-      return cores[prioridade] || 'grey'
-    }
 
-    const getStatusCor = (status) => {
-      const cores = { 'Aberto': 'orange', 'Em Andamento': 'primary', 'Resolvido': 'green', 'Fechado': 'grey' }
-      return cores[status] || 'grey'
-    }
+  const p = prioridade?.toLowerCase()
+
+  const cores = {
+    critica: 'red',
+    alta: 'orange',
+    media: 'blue',
+    baixa: 'green'
+  }
+
+  return cores[p] || 'grey'
+}
+
+   const getStatusCor = (status) => {
+
+  const s = status?.toLowerCase()
+
+  const cores = {
+    aberto: 'orange',
+    em_andamento: 'primary',
+    resolvido: 'green',
+    fechado: 'grey'
+  }
+
+  return cores[s] || 'grey'
+}
 
     const getSlaTextCor = (slaRestante) => {
       if (slaRestante === 'Resolvido' || slaRestante === 'Fechado') return 'text-positive'
@@ -869,43 +884,6 @@ export default {
       })
     }
 
-    const adicionarComentario = () => {
-      chamadoParaComentario.value = chamadoDetalhe.value
-      modalComentario.value = true
-    }
-
-    const enviarComentario = () => {
-      if (novoComentario.value.trim()) {
-        if (chamadoParaComentario.value) {
-          const novoEvento = {
-            titulo: 'Comentário adicionado',
-            descricao: novoComentario.value,
-            data: new Date(),
-            icone: 'chat',
-            autor: 'Usuário Atual',
-            cor: 'info'
-          }
-          if (!chamadoParaComentario.value.timeline) {
-            chamadoParaComentario.value.timeline = []
-          }
-          chamadoParaComentario.value.timeline.unshift(novoEvento)
-          chamadoParaComentario.value.dataAtualizacao = new Date()
-
-          if (chamadoDetalhe.value && chamadoDetalhe.value.id === chamadoParaComentario.value.id) {
-            chamadoDetalhe.value = { ...chamadoDetalhe.value }
-          }
-        }
-
-        $q.notify({
-          color: 'positive',
-          message: 'Comentário adicionado com sucesso!',
-          icon: 'chat',
-          position: 'top-right'
-        })
-        novoComentario.value = ''
-        modalComentario.value = false
-      }
-    }
 
     const reabrirChamado = () => {
       $q.dialog({
@@ -938,7 +916,9 @@ export default {
         }
       })
     }
-
+onMounted(() => {
+  carregarChamados()
+})
     const baixarAnexo = (arquivo) => {
       $q.notify({
         color: 'info',
@@ -955,11 +935,10 @@ export default {
       selectedRows,
       dialogVisible,
       chamadoDetalhe,
-      modalComentario,
-      novoComentario,
       pagination,
       columns,
       statusOptions,
+      carregarChamados,
       prioridadeOptions,
       categoriaOptions,
       chamados,
@@ -977,8 +956,6 @@ export default {
       getSlaBarCor,
       abrirDialog,
       aplicarFiltros,
-      adicionarComentario,
-      enviarComentario,
       reabrirChamado,
       baixarAnexo,
       confirmarExclusaoUnica,

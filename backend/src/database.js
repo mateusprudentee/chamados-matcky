@@ -2,15 +2,15 @@ import mysql from 'mysql2/promise';
 import nodemailer from 'nodemailer';
 
 const dbConfig = {
-  host: process.env.DB_HOST || '50.6.138.116',
-  user: process.env.DB_USER || 'mate5357_chamados',
-  password: process.env.DB_PASSWORD || 'mm19102005MM!',
-  database: process.env.DB_NAME || 'mate5357_chamados',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'sua_senha',
+  database: process.env.DB_NAME || 'chamados_db',
   waitForConnections: true,
-  connectionLimit: 2, // Número muito reduzido para evitar exceder o limite
-  queueLimit: 10, // Fila de espera para conexões
-  acquireTimeout: 30000, // 30 segundos para adquirir conexão
-  timeout: 60000, // 60 segundos de timeout
+  connectionLimit: 2,
+  queueLimit: 10,
+  acquireTimeout: 30000,
+  timeout: 60000,
   reconnect: true,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000

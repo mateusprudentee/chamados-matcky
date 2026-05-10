@@ -6,9 +6,7 @@
       <div class="login-header">
         <div class="logo-icon"></div>
         <p class="login-title">Criar Conta</p>
-        <p class="login-subtitle">
-          Preencha os dados abaixo para se registrar
-        </p>
+
       </div>
 
       <!-- Form -->
@@ -91,11 +89,8 @@
 
         <!-- Terms -->
         <p class="terms-text">
-          Ao criar uma conta você concorda com nossos
-          <a href="#" class="terms-link">Termos de uso</a>
-          e
-          <a href="#" class="terms-link">Política de Privacidade</a>.
-        </p>
+  Ao criar uma conta, você confirma estar ciente de que este sistema é privado e que os dados informados serão utilizados apenas para autenticação de acesso.
+</p>
 
         <!-- Message -->
         <div

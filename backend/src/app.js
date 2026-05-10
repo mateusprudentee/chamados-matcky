@@ -26,6 +26,7 @@ const allowedOrigins = [
   'http://localhost:9000',
   'http://localhost:5173',
   'http://localhost:8080',
+  'https://chamados.matcky.com',
   'https://redeboom.com',
   'https://loja.redeboom.com',
   'https://boom-matcky.onrender.com',

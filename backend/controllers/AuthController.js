@@ -107,7 +107,7 @@ class AuthController {
             email,
             hashedPassword,
             username,
-            `https://i.imgur.com/kKIqX11.png`,
+            `https://cdn-icons-png.flaticon.com/512/149/149071.png`,
             verificationToken,
             verificationExpires
           ]

@@ -21,12 +21,15 @@
               <path d="M3 17C3 13.6863 5.68629 11 9 11H11C14.3137 11 17 13.6863 17 17" stroke="currentColor" stroke-width="1.5"/>
             </svg>
 
-            <input
-              v-model="form.username"
-              type="text"
-              placeholder="Seu usuário"
-              class="input-field"
-            />
+           <input
+  v-model="form.username"
+  type="text"
+  placeholder="Seu usuário"
+  class="input-field"
+  maxlength="20"
+  pattern="[A-Za-z0-9]+"
+  @input="form.username = form.username.replace(/[^A-Za-z0-9]/g, '')"
+/>
           </div>
         </div>
 

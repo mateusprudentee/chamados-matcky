@@ -169,7 +169,7 @@ app.use((req, res, next) => {
 // ==========================================
 
 app.use('/', authRoutes);
-app.use('/api', membersRoutes);
+app.use('/', membersRoutes);
 app.use('/api', catalogoRoutes);
 app.use('/api', chamadoRoutes);
 

@@ -1,12 +1,15 @@
-import pool from '../src/database.js';
+import { getPool } from '../src/database.js';
 
 class Chamado {
 
   // Criar novo chamado
   static async create(chamadoData) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [result] = await connection.execute(
         `INSERT INTO chamados (
           tipo,
@@ -53,19 +56,25 @@ class Chamado {
       return chamado[0];
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.create:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Buscar todos os chamados
   static async findAll(filtros = {}) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       let query = 'SELECT * FROM chamados WHERE 1=1';
       const params = [];
 
@@ -96,19 +105,25 @@ class Chamado {
       return chamados;
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.findAll:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Buscar chamado por ID
   static async findById(id) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [chamados] = await connection.execute(
         'SELECT * FROM chamados WHERE id = ?',
         [id]
@@ -117,19 +132,25 @@ class Chamado {
       return chamados[0] || null;
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.findById:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Buscar chamado por protocolo
   static async findByProtocolo(protocolo) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [chamados] = await connection.execute(
         'SELECT * FROM chamados WHERE protocolo = ?',
         [protocolo]
@@ -138,19 +159,25 @@ class Chamado {
       return chamados[0] || null;
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.findByProtocolo:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Buscar chamados por e-mail do usuário
   static async findByUserEmail(email) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [chamados] = await connection.execute(
         'SELECT * FROM chamados WHERE email_usuario = ? ORDER BY id DESC',
         [email]
@@ -159,19 +186,25 @@ class Chamado {
       return chamados;
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.findByUserEmail:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Atualizar chamado
   static async update(id, dados) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const campos = [];
       const valores = [];
 
@@ -215,19 +248,25 @@ class Chamado {
       return await this.findById(id);
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.update:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Atualizar apenas status
   static async updateStatus(id, status) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [result] = await connection.execute(
         'UPDATE chamados SET status = ? WHERE id = ?',
         [status, id]
@@ -236,19 +275,25 @@ class Chamado {
       return result.affectedRows > 0;
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.updateStatus:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Deletar chamado
   static async delete(id) {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [result] = await connection.execute(
         'DELETE FROM chamados WHERE id = ?',
         [id]
@@ -257,19 +302,25 @@ class Chamado {
       return result.affectedRows > 0;
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.delete:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 
   // Estatísticas
   static async getStats() {
+
+    const pool = await getPool();
     const connection = await pool.getConnection();
 
     try {
+
       const [total] = await connection.execute(
         'SELECT COUNT(*) AS total FROM chamados'
       );
@@ -289,11 +340,14 @@ class Chamado {
       };
 
     } catch (error) {
+
       console.error('❌ Erro em Chamado.getStats:', error);
       throw error;
 
     } finally {
+
       connection.release();
+
     }
   }
 }

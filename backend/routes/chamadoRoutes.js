@@ -3,19 +3,19 @@ import ChamadoController from '../controllers/chamadoController.js';
 
 const router = express.Router();
 
-// Rota POST - Criar novo chamado
-router.post('/chamados', ChamadoController.criar);
+// Criar chamado
+router.post('/chamados', ChamadoController.create);
 
-// Rota GET - Listar todos os chamados
-router.get('/chamados', ChamadoController.listar);
+// Listar chamados
+router.get('/chamados', ChamadoController.list);
 
-// Rota GET - Buscar chamado específico por ID
-router.get('/chamados/:id', ChamadoController.buscarPorId);
+// Buscar chamados por usuário
+router.get('/chamados/usuario/:email', ChamadoController.getByUser);
 
-// Rota PUT - Atualizar chamado
-router.put('/chamados/:id', ChamadoController.atualizar);
+// Buscar chamado por ID
+router.get('/chamados/:id', ChamadoController.getById);
 
-// Rota GET - Buscar chamados por usuário
-router.get('/chamados/usuario/:email', ChamadoController.buscarPorUsuario);
+// Atualizar chamado
+router.put('/chamados/:id', ChamadoController.update);
 
 export default router;

@@ -205,7 +205,6 @@ export default {
       quickActions: [
         { title: 'Abrir chamado', icon: 'bug_report', to: '/novo' },
         { title: 'Chamados', icon: 'list', to: '/chamados' },
-        { title: 'Excluídos', icon: 'delete', to: '/excluidos' },
          { title: 'Minha conta', icon: 'person', to: '/perfil' },
       ]
     }
@@ -233,8 +232,6 @@ export default {
         const cachedUser = localStorage.getItem('userData')
         const token = localStorage.getItem('authToken')
 
-        console.log('Token encontrado:', !!token)
-        console.log('UserData cacheado:', cachedUser)
 
         if (cachedUser) {
           const user = JSON.parse(cachedUser)
@@ -242,7 +239,6 @@ export default {
           this.userAvatar = user.avatar || ''
           this.userRole = user.role || 'membro'
           this.isLoggedIn = true
-          console.log('Usuário carregado do cache:', this.userName)
         }
 
         if (!token) {
@@ -290,7 +286,6 @@ export default {
 
         if (response.ok) {
           const userData = await response.json()
-          console.log('Dados do usuário recebidos:', userData)
 
           // Ajusta para diferentes formatos de resposta
           const user = userData.user || userData
@@ -302,7 +297,6 @@ export default {
 
           // Atualiza o cache
           localStorage.setItem('userData', JSON.stringify(user))
-          console.log('Perfil atualizado com sucesso:', this.userName)
         } else if (response.status === 401) {
           console.warn('Token inválido ou expirado')
           this.userName = 'Visitante'

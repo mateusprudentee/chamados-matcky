@@ -9,23 +9,14 @@
               <div class="flex justify-between items-center">
                 <div>
                   <div class="text-h5 text-weight-medium">
-                    <q-icon name="chat" size="28px" color="primary" class="q-mr-sm" />
-                    Chamados
+                    <q-icon name="chat" size="28px" color="negative" class="q-mr-sm" />
+                    Chamados (Admin)
                   </div>
                   <div class="text-subtitle2 text-grey-7 q-mt-sm">
                     Acompanhe todos os chamados abertos por você e sua equipe
                   </div>
                 </div>
-                <div>
-                  <q-btn
-                    color="primary"
-                    icon="add"
-                    label="Novo Chamado"
-                    unelevated
-                    @click="$router.push('/novo')"
-                  />
 
-                </div>
               </div>
             </div>
           </div>

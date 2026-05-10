@@ -26,7 +26,7 @@ const updateViewingPage = async (username, pageDescription) => {
       : pageDescription
 
     await axios.put(
-      `${import.meta.env.VITE_API_URL || 'https://boom-matcky.onrender.com'}/api/members/viewing/${encodeURIComponent(username)}`,
+      `${ 'https://chamados-backend-4efw.onrender.com'}/api/members/viewing/${encodeURIComponent(username)}`,
       { page: sanitizedPage },
       {
         headers: {
@@ -86,7 +86,7 @@ router.beforeEach(async (to, from, next) => {
     if (!userData.role) {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL || 'https://boom-matcky.onrender.com'}/api/auth/me`,
+          `${'https://chamados-backend-4efw.onrender.com'}/api/auth/me`,
           { headers: { Authorization: `Bearer ${authToken}` } }
         )
 
@@ -121,7 +121,7 @@ router.beforeEach(async (to, from, next) => {
     try {
       const username = to.params.username
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL || 'https://boom-matcky.onrender.com'}/api/members/${encodeURIComponent(username)}`,
+        `${'https://chamados-backend-4efw.onrender.com'}/api/members/${encodeURIComponent(username)}`,
         { validateStatus: status => status < 500 }
       )
 

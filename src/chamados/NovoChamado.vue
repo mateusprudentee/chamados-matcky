@@ -349,8 +349,6 @@ export default {
           localStorage.getItem('authToken') ||
           localStorage.getItem('token')
 
-        console.log('Token encontrado:', !!token)
-        console.log('Usuário cacheado:', cachedUser)
 
         // =========================
         // CARREGA DO CACHE PRIMEIRO
@@ -381,10 +379,7 @@ export default {
             )
           }
 
-          console.log(
-            'Usuário carregado do cache:',
-            usuarioLogado.value
-          )
+
         }
 
         // =========================
@@ -443,10 +438,7 @@ export default {
         if (response.ok) {
           const userData = await response.json()
 
-          console.log(
-            'Dados do usuário recebidos:',
-            userData
-          )
+
 
           const user = userData.user || userData
 
@@ -481,10 +473,7 @@ export default {
             JSON.stringify(user)
           )
 
-          console.log(
-            'Usuário atualizado:',
-            usuarioLogado.value
-          )
+
         }
 
         // =========================

@@ -64,6 +64,24 @@ const routes = [
         component: () => import('../Perfil/Perfil.vue'),
         meta: { pageTitle: 'Perfil' }
       },
+
+      {
+        path: '/admin/usuarios',
+        component: () => import('../admin/Usuarios.vue'),
+        meta: { pageTitle: 'Usuarios' }
+      },
+
+      {
+        path: '/admin/chamados',
+        component: () => import('../admin/Chamados.vue'),
+        meta: { pageTitle: 'Chamados' }
+      },
+
+       {
+        path: '/admin/logs',
+        component: () => import('../admin/Logs.vue'),
+        meta: { pageTitle: 'Logs' }
+      },
     ]
   },
 

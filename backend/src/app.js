@@ -8,6 +8,7 @@ import authRoutes from '../routes/authRoutes.js';
 import membersRoutes from '../routes/membersRoutes.js';
 import catalogoRoutes from '../routes/catalogoRoutes.js';
 import chamadoRoutes from '../routes/chamadoRoutes.js';
+import logsRoutes from '../routes/logsRoutes.js';
 
 import {
   initializePool,
@@ -33,7 +34,6 @@ const allowedOrigins = [
   'https://chamados.matcky.com',
   'https://redeboom.com',
   'https://loja.redeboom.com',
-  'https://boom-matcky.onrender.com',
   'https://chamados-backend-4efw.onrender.com'
 ];
 
@@ -210,7 +210,7 @@ app.use('/', authRoutes);
 app.use('/', membersRoutes);
 app.use('/api', catalogoRoutes);
 app.use('/api', chamadoRoutes);
-
+app.use('/', logsRoutes);
 // ==========================================
 // ERROR HANDLER
 // ==========================================

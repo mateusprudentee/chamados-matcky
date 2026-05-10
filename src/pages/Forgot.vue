@@ -279,7 +279,7 @@ export default {
 ,
   setup() {
     const router = useRouter()
-    const API_URL = 'https://boom-matcky.onrender.com/api'
+    const API_URL = 'https://chamados-backend-4efw.onrender.com/api'
 
     const step = ref(1)
     const email = ref('')

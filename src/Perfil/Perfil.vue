@@ -16,12 +16,50 @@
                     Gerencie suas informações pessoais e configurações
                   </div>
                 </div>
+                <div>
 
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="refresh"
+                    @click="recarregarDados"
+                    :loading="recarregando"
+                  >
+                    <q-tooltip>Recarregar dados</q-tooltip>
+                  </q-btn>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="row q-col-gutter-xl">
+          <!-- Loading com Skeleton -->
+          <div v-if="loadingInicial" class="row q-col-gutter-xl">
+            <div class="col-12 col-md-4">
+              <q-skeleton type="rect" height="400px" animation="wave" />
+            </div>
+            <div class="col-12 col-md-8">
+              <q-skeleton type="rect" height="600px" animation="wave" />
+            </div>
+          </div>
+
+          <!-- Mensagem de Erro -->
+          <div v-else-if="erroCarregamento" class="text-center q-pa-xl">
+            <q-icon name="error_outline" size="64px" color="negative" />
+            <div class="text-h6 text-negative q-mt-md">{{ erroCarregamento }}</div>
+            <div class="text-caption q-mt-sm">Verifique sua conexão ou tente novamente mais tarde</div>
+            <q-btn
+              label="Tentar Novamente"
+              color="primary"
+              icon="refresh"
+              class="q-mt-lg"
+              @click="recarregarDados"
+              :loading="recarregando"
+            />
+          </div>
+
+          <!-- Conteúdo Principal -->
+          <div v-else class="row q-col-gutter-xl">
             <!-- Coluna Esquerda (40%) - Avatar e Informações Pessoais -->
             <div class="col-12 col-md-4">
               <div class="column q-gutter-y-lg">
@@ -76,16 +114,9 @@
 
                   <q-separator />
 
-                  <!-- Estatísticas do Usuário -->
-
-                </q-card>
-
-                <!-- Card de Informações de Contato -->
-                <q-card class="info-card">
+                  <!-- Informações do Usuário -->
                   <q-card-section>
-                    <div class="text-subtitle1 text-weight-medium q-mb-md">
-                      Informações
-                    </div>
+
 
                     <q-list dense>
                       <q-item>
@@ -93,27 +124,41 @@
                           <q-icon name="fingerprint" color="primary" size="18px" />
                         </q-item-section>
                         <q-item-section>
-                          <q-item-label caption>ID </q-item-label>
-                          <q-item-label>{{ userEmail }}</q-item-label>
+                          <q-item-label caption>ID do Usuário</q-item-label>
+                          <q-item-label>{{ userId || 'Não informado' }}</q-item-label>
                         </q-item-section>
-
                       </q-item>
 
-                      <q-item>
-                        <q-item-section avatar>
-                          <q-icon name="person" color="primary" size="18px" />
-                        </q-item-section>
-                        <q-item-section>
-                          <q-item-label caption>Usuário</q-item-label>
-                          <q-item-label>{{ userMinecraftNick || 'Não informado' }}</q-item-label>
-                        </q-item-section>
 
-                      </q-item>
                     </q-list>
                   </q-card-section>
                 </q-card>
 
+                <!-- Card de Estatísticas -->
+                <q-card class="info-card">
+                  <q-card-section>
 
+                    <div class="row q-col-gutter-md">
+                      <div class="col-4 text-center">
+                        <q-icon name="chat" size="24px" color="primary" />
+                        <div class="text-h6 q-mt-xs">{{ postagensCount }}</div>
+                        <div class="text-caption text-grey-6">Postagens</div>
+                      </div>
+                      <div class="col-4 text-center">
+                        <q-icon name="group" size="24px" color="primary" />
+                        <div class="text-h6 q-mt-xs">{{ seguidoresCount }}</div>
+                        <div class="text-caption text-grey-6">Seguidores</div>
+                      </div>
+                      <div class="col-4 text-center">
+                        <q-icon name="person_add" size="24px" color="primary" />
+                        <div class="text-h6 q-mt-xs">{{ seguindoCount }}</div>
+                        <div class="text-caption text-grey-6">Seguindo</div>
+                      </div>
+                    </div>
+
+
+                  </q-card-section>
+                </q-card>
               </div>
             </div>
 
@@ -128,21 +173,23 @@
                     </div>
 
                     <div class="row q-col-gutter-md">
-                      <div class="col-6">
-                        <div class="activity-item">
+                      <div class="col-12 col-md-6">
+                        <div class="activity-item q-pa-sm bg-grey-1 rounded-borders">
                           <q-icon name="schedule" size="16px" color="green" class="q-mr-sm" />
-                          <span class="text-caption">Última atividade:</span>
-                          <div class="text-body2">{{ formatRelativeTime(userLastLogin) }}</div>
+                          <span class="text-caption text-grey-7">Última atividade:</span>
+                          <div class="text-body2 text-weight-medium">{{ formatRelativeTime(userLastLogin) }}</div>
                         </div>
                       </div>
-                      <div class="col-6">
-                        <div class="activity-item">
+                      <div class="col-12 col-md-6">
+                        <div class="activity-item q-pa-sm bg-grey-1 rounded-borders">
                           <q-icon name="visibility" size="16px" color="blue" class="q-mr-sm" />
-                          <span class="text-caption">Visualizando agora:</span>
-                          <div class="text-body2">{{ userViewingPage || 'Nenhuma' }}</div>
+                          <span class="text-caption text-grey-7">Visualizando agora:</span>
+                          <div class="text-body2 text-weight-medium">{{ userViewingPage || 'Nenhuma' }}</div>
                         </div>
                       </div>
                     </div>
+
+
                   </q-card-section>
                 </q-card>
 
@@ -238,12 +285,34 @@
                       />
                     </div>
 
-                    <div class="assinatura-container" v-html="userAssinatura || 'Nenhuma assinatura cadastrada'">
+                    <div class="assinatura-container q-pa-md bg-grey-1 rounded-borders"
+                         v-html="userAssinatura || 'Nenhuma'">
                     </div>
                   </q-card-section>
                 </q-card>
 
+                <!-- Card de Ações -->
+                <q-card class="profile-card">
+                  <q-card-section>
+                    <div class="text-subtitle1 text-weight-medium q-mb-md">
+                      Ações
+                    </div>
 
+                    <div class="row q-col-gutter-md">
+
+                      <div class="col-12 ">
+                        <q-btn
+                          outline
+                          color="negative"
+                          label="Sair do Sistema"
+                          icon="logout"
+                          class="full-width"
+                          @click="logout"
+                        />
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
               </div>
             </div>
           </div>
@@ -268,7 +337,7 @@
                 label="URL do Avatar"
                 outlined
                 dense
-                hint="Use uma URL válida de imagem (ex: https://cravatar.eu/helmavatar/username/190.png)"
+                hint="Use uma URL válida de imagem (ex: https://i.imgur.com/kKIqX11.png)"
               >
                 <template v-slot:prepend>
                   <q-icon name="link" color="primary" />
@@ -285,62 +354,6 @@
           </q-card>
         </q-dialog>
 
-        <!-- Dialog de Alterar E-mail -->
-        <q-dialog v-model="dialogEmail">
-          <q-card style="min-width: 400px">
-            <q-card-section class="bg-primary text-white">
-              <div class="text-h6">Alterar E-mail</div>
-            </q-card-section>
-
-            <q-card-section>
-              <q-input
-                v-model="novoEmail"
-                label="Novo E-mail"
-                type="email"
-                outlined
-                dense
-                :rules="[val => !!val || 'Digite o novo e-mail', val => isValidEmail(val) || 'E-mail inválido']"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="email" color="primary" />
-                </template>
-              </q-input>
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" v-close-popup />
-              <q-btn color="primary" label="Salvar" @click="salvarEmail" :loading="loadingEmail" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-
-        <!-- Dialog de Alterar Minecraft Nick -->
-        <q-dialog v-model="dialogMinecraft">
-          <q-card style="min-width: 400px">
-            <q-card-section class="bg-primary text-white">
-              <div class="text-h6">Alterar usuário</div>
-            </q-card-section>
-
-            <q-card-section>
-              <q-input
-                v-model="novoMinecraftNick"
-                label="Usuário"
-                outlined
-                dense
-                hint="Digite seu novo usuário"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="sports_esports" color="primary" />
-                </template>
-              </q-input>
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" v-close-popup />
-              <q-btn color="primary" label="Salvar" @click="salvarMinecraftNick" :loading="loadingMinecraft" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
 
         <!-- Dialog de Editar Assinatura -->
         <q-dialog v-model="dialogAssinatura">
@@ -362,6 +375,7 @@
                 placeholder="Digite sua assinatura aqui..."
               />
               <div class="text-caption text-grey-6 q-mt-sm">
+                <q-icon name="info" size="12px" />
                 Você pode usar formatação HTML básica
               </div>
             </q-card-section>
@@ -388,7 +402,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 
@@ -398,6 +412,15 @@ export default {
   setup() {
     const $q = useQuasar()
     const router = useRouter()
+
+    // =========================
+    // ESTADOS DE LOADING E CACHE
+    // =========================
+    const loadingInicial = ref(false)
+    const recarregando = ref(false)
+    const erroCarregamento = ref('')
+    const usandoPolling = ref(false)
+    let pollingInterval = null
 
     // Dados do usuário
     const userName = ref('Carregando...')
@@ -445,12 +468,68 @@ export default {
     const novoMinecraftNick = ref('')
     const assinaturaTexto = ref('')
 
-    // Computed para verificar se é admin
+    // =========================
+    // COMPUTEDS
+    // =========================
     const isAdmin = computed(() => {
       return ['master', 'gerente', 'admin'].includes(userRole.value)
     })
 
-    // Funções auxiliares
+    const carregarCacheInicial = () => {
+  const cachedUser = localStorage.getItem('userData')
+
+  if (cachedUser) {
+    try {
+      const user = JSON.parse(cachedUser)
+
+      userName.value = user.username || user.name || user.nome || 'Usuário'
+      userEmail.value = user.email || user.id || ''
+      userAvatar.value = user.avatar || user.foto || ''
+      userRole.value = user.role || user.cargo || 'membro'
+      userId.value = user.id || user.userId
+      userMinecraftNick.value = user.minecraft_nick || user.minecraftNick || ''
+      userAssinatura.value = user.assinatura || user.signature || ''
+      userCreatedAt.value = user.created_at || user.data_criacao || user.createdAt
+      userLastLogin.value = user.last_login || user.ultimo_acesso || user.lastLogin
+      userViewingPage.value = user.viewing_page || ''
+
+      // Estatísticas do cache
+      postagensCount.value = user.postagens_count || user.posts || 0
+      seguidoresCount.value = user.seguidores_count || user.followers || 0
+      seguindoCount.value = user.seguindo_count || user.following || 0
+
+    } catch {
+  return 'data inválida'
+}
+  }
+
+    }
+
+    const salvarCache = (userData) => {
+      const cacheData = {
+        username: userName.value,
+        name: userName.value,
+        email: userEmail.value,
+        avatar: userAvatar.value,
+        role: userRole.value,
+        id: userId.value,
+        minecraft_nick: userMinecraftNick.value,
+        assinatura: userAssinatura.value,
+        created_at: userCreatedAt.value,
+        last_login: userLastLogin.value,
+        viewing_page: userViewingPage.value,
+        postagens_count: postagensCount.value,
+        seguidores_count: seguidoresCount.value,
+        seguindo_count: seguindoCount.value,
+        ...userData
+      }
+
+      localStorage.setItem('userData', JSON.stringify(cacheData))
+    }
+
+    // =========================
+    // FUNÇÕES AUXILIARES
+    // =========================
     const formatRole = (role) => {
       const roles = {
         'master': 'Master',
@@ -485,22 +564,32 @@ export default {
 
     const formatDate = (date) => {
       if (!date) return 'data não disponível'
-      const d = new Date(date)
-      return d.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })
+      try {
+        const d = new Date(date)
+        return d.toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })
+      } catch {
+  return 'data inválida'
+}
     }
 
     const formatRelativeTime = (date) => {
       if (!date) return 'Nunca'
-      const now = new Date()
-      const past = new Date(date)
-      const diff = now - past
-      const minutos = Math.floor(diff / (1000 * 60))
-      const horas = Math.floor(diff / (1000 * 60 * 60))
-      const dias = Math.floor(diff / (1000 * 60 * 60 * 24))
+      try {
+        const now = new Date()
+        const past = new Date(date)
+        const diff = now - past
+        const minutos = Math.floor(diff / (1000 * 60))
+        const horas = Math.floor(diff / (1000 * 60 * 60))
+        const dias = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-      if (minutos < 60) return `${minutos} minutos atrás`
-      if (horas < 24) return `${horas} horas atrás`
-      return `${dias} dias atrás`
+        if (minutos < 1) return 'agora mesmo'
+        if (minutos < 60) return `${minutos} ${minutos === 1 ? 'minuto' : 'minutos'} atrás`
+        if (horas < 24) return `${horas} ${horas === 1 ? 'hora' : 'horas'} atrás`
+        if (dias < 30) return `${dias} ${dias === 1 ? 'dia' : 'dias'} atrás`
+        return formatDate(date)
+      } catch {
+  return 'data inválida'
+}
     }
 
     const isValidEmail = (email) => {
@@ -508,9 +597,10 @@ export default {
       return regex.test(email)
     }
 
-    // Carregar perfil do usuário
+    // =========================
+    // CARREGAR PERFIL DO USUÁRIO
+    // =========================
     const loadUserProfile = async () => {
-      loading.value = true
       const token = localStorage.getItem('authToken')
 
       if (!token) {
@@ -524,23 +614,9 @@ export default {
       }
 
       try {
-        // Tenta pegar do cache primeiro
-        const cachedUser = localStorage.getItem('userData')
-        if (cachedUser) {
-          const user = JSON.parse(cachedUser)
-          userName.value = user.username || user.name
-          userEmail.value = user.id || ''
-          userAvatar.value = user.avatar || ''
-          userRole.value = user.role || 'membro'
-          userId.value = user.id
-          userMinecraftNick.value = user.minecraft_nick || ''
-          userAssinatura.value = user.assinatura || ''
-          userCreatedAt.value = user.created_at || user.data_criacao
-          userLastLogin.value = user.last_login
-        }
-
-        // Busca dados atualizados da API
-        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${userName.value}`, {
+        // Tenta buscar da API
+        const username = userName.value !== 'Carregando...' ? userName.value : ''
+        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${username}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -552,7 +628,7 @@ export default {
           const member = data.member || data
 
           userName.value = member.username || userName.value
-          userEmail.value = member.id || userEmail.value
+          userEmail.value = member.email || member.id || userEmail.value
           userAvatar.value = member.avatar || userAvatar.value
           userRole.value = member.role || userRole.value
           userId.value = member.id || userId.value
@@ -562,58 +638,111 @@ export default {
           userLastLogin.value = member.last_login || userLastLogin.value
           userViewingPage.value = member.viewing_page || ''
 
-          // Atualiza cache
-          localStorage.setItem('userData', JSON.stringify(member))
+          // Estatísticas
+          postagensCount.value = member.postagens_count || 0
+          seguidoresCount.value = member.seguidores_count || 0
+          seguindoCount.value = member.seguindo_count || 0
+
+          // Salva no cache
+          salvarCache(member)
+
+          erroCarregamento.value = ''
+        } else if (response.status === 404) {
+          console.warn('Usuário não encontrado na API, usando apenas cache')
+        } else {
+          throw new Error(`Erro ${response.status}: ${response.statusText}`)
         }
-
-        // Busca contagem de posts
-        await loadPostCount()
-
-        // Busca seguidores/seguindo
-        await loadFollowStats()
-
       } catch (error) {
         console.error('Erro ao carregar perfil:', error)
-        $q.notify({
-          color: 'negative',
-          message: 'Erro ao carregar perfil',
-          icon: 'error'
-        })
+
+        // Se já tem cache, não mostra erro
+        if (!localStorage.getItem('userData')) {
+          erroCarregamento.value = 'Erro ao carregar perfil. Verifique sua conexão.'
+
+          $q.notify({
+            color: 'negative',
+            message: 'Erro ao carregar perfil',
+            icon: 'error'
+          })
+        }
       } finally {
         loading.value = false
+        loadingInicial.value = false
       }
     }
 
-    const loadPostCount = async () => {
-      try {
-        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${userName.value}/posts`)
-        if (response.ok) {
-          const data = await response.json()
-          postagensCount.value = data.postCount || 0
-        }
-      } catch (error) {
-        console.error('Erro ao carregar posts:', error)
-      }
-    }
+    // =========================
+    // POLLING PARA ATUALIZAÇÕES EM TEMPO REAL
+    // =========================
+    const iniciarPolling = () => {
+      if (pollingInterval) clearInterval(pollingInterval)
 
-    const loadFollowStats = async () => {
-      try {
+      // Polling a cada 30 segundos para atualizar dados
+      pollingInterval = setInterval(async () => {
         const token = localStorage.getItem('authToken')
-        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/seguir/check/${userName.value}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        if (!token) return
+
+        try {
+          const username = userName.value !== 'Carregando...' ? userName.value : ''
+          if (!username || username === 'Carregando...') return
+
+          const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${username}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            const member = data.member || data
+
+            // Atualiza apenas dados que podem mudar com frequência
+            userLastLogin.value = member.last_login || userLastLogin.value
+            userViewingPage.value = member.viewing_page || ''
+            postagensCount.value = member.postagens_count || postagensCount.value
+            seguidoresCount.value = member.seguidores_count || seguidoresCount.value
+            seguindoCount.value = member.seguindo_count || seguindoCount.value
+
+            // Salva cache atualizado
+            salvarCache(member)
           }
-        })
-        if (response.ok) {
-          const data = await response.json()
-          seguidoresCount.value = data.followers || 0
+        } catch (error) {
+          console.error('Erro no polling:', error)
         }
-      } catch (error) {
-        console.error('Erro ao carregar seguidores:', error)
+      }, 30000) // 30 segundos
+    }
+
+    const pararPolling = () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval)
+        pollingInterval = null
       }
     }
 
-    // Alterar senha
+    // =========================
+    // RECARREGAR DADOS
+    // =========================
+    const recarregarDados = async () => {
+      recarregando.value = true
+      erroCarregamento.value = ''
+
+      await loadUserProfile()
+
+      recarregando.value = false
+
+      $q.notify({
+        color: 'info',
+        message: 'Dados atualizados!',
+        icon: 'refresh',
+        position: 'top-right',
+        timeout: 1500
+      })
+    }
+
+    // =========================
+    // ALTERAR SENHA
+    // =========================
     const alterarSenha = async () => {
       if (senhaForm.value.newPassword !== senhaForm.value.confirmPassword) {
         $q.notify({
@@ -655,7 +784,7 @@ export default {
           const error = await response.json()
           $q.notify({
             color: 'negative',
-            message: error.error || 'Erro ao alterar senha',
+            message: error.error || error.message || 'Erro ao alterar senha',
             icon: 'error'
           })
         }
@@ -671,16 +800,25 @@ export default {
       }
     }
 
-    // Alterar avatar
+    // =========================
+    // ALTERAR AVATAR
+    // =========================
     const abrirDialogAvatar = () => {
       avatarUrl.value = userAvatar.value
       avatarPreview.value = userAvatar.value
       dialogAvatar.value = true
     }
 
-
-
     const salvarAvatar = async () => {
+      if (!avatarUrl.value) {
+        $q.notify({
+          color: 'warning',
+          message: 'Digite uma URL para o avatar',
+          icon: 'warning'
+        })
+        return
+      }
+
       loadingAvatar.value = true
       const token = localStorage.getItem('authToken')
 
@@ -697,7 +835,8 @@ export default {
         if (response.ok) {
           const data = await response.json()
           userAvatar.value = avatarUrl.value
-          localStorage.setItem('userData', JSON.stringify(data.user))
+          salvarCache(data.user || { avatar: avatarUrl.value })
+
           $q.notify({
             color: 'positive',
             message: 'Avatar atualizado com sucesso!',
@@ -705,9 +844,10 @@ export default {
           })
           dialogAvatar.value = false
         } else {
+          const error = await response.json()
           $q.notify({
             color: 'negative',
-            message: 'Erro ao atualizar avatar',
+            message: error.error || 'Erro ao atualizar avatar',
             icon: 'error'
           })
         }
@@ -723,64 +863,9 @@ export default {
       }
     }
 
-    // Alterar e-mail
-    const abrirDialogEmail = () => {
-      novoEmail.value = userEmail.value
-      dialogEmail.value = true
-    }
-
-    const salvarEmail = async () => {
-      if (!isValidEmail(novoEmail.value)) {
-        $q.notify({
-          color: 'warning',
-          message: 'E-mail inválido',
-          icon: 'warning'
-        })
-        return
-      }
-
-      loadingEmail.value = true
-      const token = localStorage.getItem('authToken')
-
-      try {
-        const response = await fetch(`https://chamados-backend-4efw.onrender.com/api/members/${userId.value}/email`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: novoEmail.value })
-        })
-
-        if (response.ok) {
-          userEmail.value = novoEmail.value
-          $q.notify({
-            color: 'positive',
-            message: 'E-mail atualizado com sucesso!',
-            icon: 'check'
-          })
-          dialogEmail.value = false
-        } else {
-          const error = await response.json()
-          $q.notify({
-            color: 'negative',
-            message: error.error || 'Erro ao atualizar e-mail',
-            icon: 'error'
-          })
-        }
-      } catch (error) {
-        console.error('Erro ao salvar e-mail:', error)
-        $q.notify({
-          color: 'negative',
-          message: 'Erro ao salvar e-mail',
-          icon: 'error'
-        })
-      } finally {
-        loadingEmail.value = false
-      }
-    }
-
-    // Alterar Minecraft nick
+    // =========================
+    // ALTERAR MINECRAFT NICK
+    // =========================
     const abrirDialogMinecraft = () => {
       novoMinecraftNick.value = userMinecraftNick.value
       dialogMinecraft.value = true
@@ -802,24 +887,27 @@ export default {
 
         if (response.ok) {
           userMinecraftNick.value = novoMinecraftNick.value
+          salvarCache({ minecraft_nick: novoMinecraftNick.value })
+
           $q.notify({
             color: 'positive',
-            message: 'Usuário atualizado com sucesso!',
+            message: 'Usuário Minecraft atualizado com sucesso!',
             icon: 'check'
           })
           dialogMinecraft.value = false
         } else {
+          const error = await response.json()
           $q.notify({
             color: 'negative',
-            message: 'Erro ao atualizar Usuário',
+            message: error.error || 'Erro ao atualizar usuário Minecraft',
             icon: 'error'
           })
         }
       } catch (error) {
-        console.error('Erro ao salvar Usuário:', error)
+        console.error('Erro ao salvar usuário Minecraft:', error)
         $q.notify({
           color: 'negative',
-          message: 'Erro ao salvar Usuário',
+          message: 'Erro ao salvar usuário Minecraft',
           icon: 'error'
         })
       } finally {
@@ -827,7 +915,9 @@ export default {
       }
     }
 
-    // Editar assinatura
+    // =========================
+    // EDITAR ASSINATURA
+    // =========================
     const editarAssinatura = () => {
       assinaturaTexto.value = userAssinatura.value
       dialogAssinatura.value = true
@@ -849,6 +939,8 @@ export default {
 
         if (response.ok) {
           userAssinatura.value = assinaturaTexto.value
+          salvarCache({ assinatura: assinaturaTexto.value })
+
           $q.notify({
             color: 'positive',
             message: 'Assinatura atualizada com sucesso!',
@@ -856,9 +948,10 @@ export default {
           })
           dialogAssinatura.value = false
         } else {
+          const error = await response.json()
           $q.notify({
             color: 'negative',
-            message: 'Erro ao atualizar assinatura',
+            message: error.error || 'Erro ao atualizar assinatura',
             icon: 'error'
           })
         }
@@ -874,7 +967,9 @@ export default {
       }
     }
 
-    // Navegação
+    // =========================
+    // NAVEGAÇÃO
+    // =========================
     const seguirAmigos = () => {
       router.push('/seguir')
     }
@@ -894,6 +989,7 @@ export default {
         ok: { label: 'Sim', color: 'negative' },
         cancel: { label: 'Cancelar', color: 'grey', flat: true }
       }).onOk(() => {
+        pararPolling()
         localStorage.removeItem('authToken')
         localStorage.removeItem('userData')
         localStorage.removeItem('captcha_expire')
@@ -901,8 +997,18 @@ export default {
       })
     }
 
+    // =========================
+    // CYCLE
+    // =========================
     onMounted(() => {
+      carregarCacheInicial()
       loadUserProfile()
+      iniciarPolling()
+      usandoPolling.value = true
+    })
+
+    onUnmounted(() => {
+      pararPolling()
     })
 
     return {
@@ -925,6 +1031,10 @@ export default {
 
       // Loading
       loading,
+      loadingInicial,
+      recarregando,
+      erroCarregamento,
+      usandoPolling,
       loadingSenha,
       loadingAvatar,
       loadingEmail,
@@ -952,11 +1062,10 @@ export default {
       formatDate,
       formatRelativeTime,
       isValidEmail,
+      recarregarDados,
       alterarSenha,
       abrirDialogAvatar,
       salvarAvatar,
-      abrirDialogEmail,
-      salvarEmail,
       abrirDialogMinecraft,
       salvarMinecraftNick,
       editarAssinatura,
@@ -969,6 +1078,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .container {

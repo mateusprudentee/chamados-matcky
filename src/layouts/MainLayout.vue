@@ -10,7 +10,7 @@
         <q-toolbar-title class="mobile-logo-container">
           <router-link to="/" class="mobile-logo-link">
             <span class="logo-text-mobile" @click="navigate">
-                Gestão de Chamados Matcky
+                Portal de Chamados Matcky
               </span>
 
           </router-link>
@@ -88,7 +88,7 @@
             </router-link>
             <router-link to="/" custom v-slot="{ navigate }">
               <span class="logo-text" @click="navigate">
-                Gestão de Chamados
+                Portal de Chamados
               </span>
             </router-link>
           </div>
@@ -192,6 +192,15 @@
               </div>
             </div>
 
+
+
+
+
+
+
+
+
+
 <!-- CONTA (modo normal) -->
             <div v-if="!miniState" class="menu-section">
               <q-item
@@ -265,6 +274,178 @@
               </div>
             </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ADMIN (modo normal) -->
+<div v-if="!miniState" class="menu-section">
+<q-item
+clickable
+v-ripple
+class="menu-expansion-header dashboard-color"
+@click="toggleSubmenu('admin')"
+>
+<q-item-section avatar>
+<q-icon name="admin_panel_settings" />
+</q-item-section>
+<q-item-section>Administrativo</q-item-section>
+<q-item-section side>
+<q-icon :name="activeMenu === 'admin' ? 'expand_less' : 'expand_more'" />
+</q-item-section>
+</q-item>
+<div v-if="activeMenu === 'admin'" class="menu-items">
+
+<q-item
+clickable
+v-ripple
+class="menu-item"
+:class="{ 'menu-item-active': isActiveRoute('/admin/usuarios') }"
+@click="navigateTo('/admin/usuarios')"
+>
+<q-item-section avatar>
+<q-icon name="group" />
+</q-item-section>
+
+<q-item-section style="margin-left: -15px;">
+Usuários
+</q-item-section>
+</q-item>
+
+
+<q-item
+  clickable
+  v-ripple
+  class="menu-item"
+  :class="{ 'menu-item-active': isActiveRoute('/admin/logs') }"
+  @click="navigateTo('/admin/logs')"
+>
+  <q-item-section avatar>
+<q-icon name="bug_report" />
+</q-item-section>
+
+<q-item-section style="margin-left: -15px;">
+Logs
+</q-item-section>
+</q-item>
+
+
+<q-item
+clickable
+v-ripple
+class="menu-item"
+:class="{ 'menu-item-active': isActiveRoute('/admin/chamados') }"
+@click="navigateTo('/admin/chamados')"
+>
+<q-item-section avatar>
+<q-icon name="checklist" />
+</q-item-section>
+
+<q-item-section style="margin-left: -15px;">
+Chamados
+</q-item-section>
+</q-item>
+
+
+<q-item
+clickable
+v-ripple
+class="menu-item"
+:class="{ 'menu-item-active': isActiveRoute('/admin/excluidos') }"
+@click="navigateTo('/admin/excluidos')"
+>
+<q-item-section avatar>
+<q-icon name="delete" />
+</q-item-section>
+
+<q-item-section style="margin-left: -15px;">
+Excluídos
+</q-item-section>
+</q-item>
+
+<q-item
+clickable
+v-ripple
+class="menu-item"
+:class="{ 'menu-item-active': isActiveRoute('/admin/servidor') }"
+@click="navigateTo('/admin/servidor')"
+>
+<q-item-section avatar>
+<q-icon name="online_prediction" />
+</q-item-section>
+
+<q-item-section style="margin-left: -15px;">
+Servidor
+</q-item-section>
+</q-item>
+
+              </div>
+            </div>
+
+
+
+
+
+
+<!-- ADMIN (modo mini hover) -->
+<div v-else class="menu-section">
+  <div
+    class="menu-hover-container"
+    @mouseenter="openHoverMenu('dashboard')"
+    @mouseleave="closeHoverMenuWithDelay('dashboard')"
+  >
+    <q-item clickable v-ripple class="menu-expansion-header dashboard-color">
+      <q-item-section avatar>
+        <q-icon name="dashboard" />
+      </q-item-section>
+    </q-item>
+    <q-menu
+      ref="dashboardMenuRef"
+      :model-value="hoverMenuActive === 'dashboard'"
+      anchor="top right"
+      self="top left"
+      :offset="[5, 0]"
+      class="hover-menu"
+      @mouseenter="cancelCloseHoverMenu"
+      @mouseleave="closeHoverMenu('dashboard')"
+    >
+      <q-list dense>
+        <q-item
+          clickable
+          :class="{ 'hover-menu-item-active': isActiveRoute('/abrir') }"
+          @click="navigateTo('/abrir')"
+        >
+          <q-item-section>Abrir</q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          :class="{ 'hover-menu-item-active': isActiveRoute('/chamados') }"
+          @click="navigateTo('/chamados')"
+        >
+          <q-item-section>Chamados</q-item-section>
+        </q-item>
+
+      </q-list>
+    </q-menu>
+  </div>
+</div>
+
+
+
+
+
+
+
           </div>
         </q-scroll-area>
       </div>
@@ -276,6 +457,7 @@
             v-if="timeLeft !== 'sem sessão ativa' && timeLeft !== 'Expirou!'"
             style="margin-bottom: -18px;"
           >
+          Versão 1.0 pre-0<br>
             <span>
               Sessão expira em
               <b>
@@ -287,8 +469,7 @@
             </span>
           </div>
           <br>
-          Versão 1.0 pre-0<br>
-          {{ new Date().toLocaleString() }}<br>
+
           Matcky <q-icon name="copyright"></q-icon> Todos os direitos reservados.
         </span>
       </div>
@@ -297,7 +478,16 @@
         <q-tooltip anchor="top middle" self="bottom middle" :offset="[0, 10]">
 
           Versão 1.0 pre-0<br>
-          {{ new Date().toLocaleString() }}<br>
+          <span>
+              Sessão expira em
+              <b>
+                {{ timeLeft }}
+                <q-tooltip>
+                  {{ expireDateFormatted }}
+                </q-tooltip>
+              </b>
+            </span>
+            <br>
           Matcky <q-icon name="copyright"></q-icon> Todos os direitos reservados.
         </q-tooltip>
       </div>
@@ -373,6 +563,14 @@ const menuGroups = {
 
   conta: [
     '/perfil',
+  ],
+
+  admin: [
+    '/admin/usuarios',
+    '/admin/logs',
+    '/admin/chamados',
+    '/admin/excluidos',
+    '/admin/servidor',
   ]
 }
 

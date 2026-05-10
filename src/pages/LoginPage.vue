@@ -70,10 +70,8 @@
 </div>
         <!-- Terms text -->
         <p class="terms-text">
-          Ao entrar você concorda com nossos
-          <a href="#" class="terms-link">Termos de uso</a> e
-          <a href="#" class="terms-link">Política de Privacidade</a>. Além disso, está ciente de que este sistema é de propriedade privada e que as informações fornecidas serão usadas apenas para fins de autenticação e autorização.
-        </p>
+  Ao entrar, você confirma estar ciente de que este sistema é privado e que os dados informados serão utilizados apenas para autenticação de acesso.
+</p>
 
 
         <!-- Message box -->
@@ -104,6 +102,14 @@
         >
           <span v-if="!loading">Entrar</span>
           <span v-else class="loading-spinner"></span>
+        </button>
+
+        <button
+          type="button"
+          class="register-btn"
+          @click="goToRegister"
+        >
+          Ainda não tenho conta
         </button>
 
         <!-- Register link -->

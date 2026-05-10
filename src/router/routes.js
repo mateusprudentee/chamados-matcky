@@ -58,14 +58,10 @@ const routes = [
         component: () => import('../chamados/Chamados.vue'),
         meta: { pageTitle: 'Meus Chamados' }
       },
-      {
-        path: 'excluidos',
-        component: () => import('../chamados/Excluidos.vue'),
-        meta: { pageTitle: 'Chamados Excluídos' }
-      },
+
       {
         path: 'perfil',
-        component: () => import('../perfil/Perfil.vue'),
+        component: () => import('../Perfil/Perfil.vue'),
         meta: { pageTitle: 'Perfil' }
       },
     ]

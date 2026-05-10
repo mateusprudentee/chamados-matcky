@@ -33,9 +33,7 @@
               <q-item clickable @click="navigateTo('/chamados')">
                 <q-item-section>Chamados</q-item-section>
               </q-item>
-              <q-item clickable @click="navigateTo('/excluidos')">
-                <q-item-section>Excluídos</q-item-section>
-              </q-item>
+
               <q-item clickable @click="navigateTo('/perfil')">
                 <q-item-section>Minha conta</q-item-section>
               </q-item>
@@ -147,21 +145,7 @@
     Chamados
   </q-item-section>
                 </q-item>
-                <q-item
-                  clickable
-                  v-ripple
-                  class="menu-item"
-                  :class="{ 'menu-item-active': isActiveRoute('/excluidos') }"
-                  @click="navigateTo('/excluidos')"
-                >
-                <q-item-section avatar>
-    <q-icon name="delete" />
-  </q-item-section>
 
-  <q-item-section style="margin-left: -15px;">
-    Excluídos
-  </q-item-section>
-                </q-item>
               </div>
             </div>
 
@@ -202,13 +186,7 @@
                     >
                       <q-item-section>Chamados</q-item-section>
                     </q-item>
-                    <q-item
-                      clickable
-                      :class="{ 'hover-menu-item-active': isActiveRoute('/excluidos') }"
-                      @click="navigateTo('/excluidos')"
-                    >
-                      <q-item-section>Excluídos</q-item-section>
-                    </q-item>
+
                   </q-list>
                 </q-menu>
               </div>
@@ -391,7 +369,6 @@ const menuGroups = {
   dashboard: [
     '/novo',
     '/chamados',
-    '/excluidos'
   ],
 
   conta: [

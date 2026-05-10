@@ -203,9 +203,10 @@ export default {
       ],
 
       quickActions: [
-        { title: 'Abrir chamado', icon: 'bug_report', to: '/dashboard' },
-        { title: 'Listas', icon: 'list', to: '/fonte-publica' },
-        { title: 'Excluídos', icon: 'delete', to: '/dados' },
+        { title: 'Abrir chamado', icon: 'bug_report', to: '/novo' },
+        { title: 'Chamados', icon: 'list', to: '/chamados' },
+        { title: 'Excluídos', icon: 'delete', to: '/excluidos' },
+         { title: 'Minha conta', icon: 'person', to: '/perfil' },
       ]
     }
   },

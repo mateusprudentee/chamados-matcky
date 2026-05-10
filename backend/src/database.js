@@ -9,8 +9,8 @@ const dbConfig = {
   waitForConnections: true,
   connectionLimit: 2, // Número muito reduzido para evitar exceder o limite
   queueLimit: 10, // Fila de espera para conexões
-  acquireTimeout: 30000, // 30 segundos para adquirir conexão
-  timeout: 60000, // 60 segundos de timeout
+  acquireTimeout: 10000, // 30 segundos para adquirir conexão
+  timeout: 10000, // 60 segundos de timeout
   reconnect: true,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000
